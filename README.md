@@ -1,6 +1,6 @@
 # 🌿 Paper Setting (学术论文智能排版工作台)
 
-> **100% 纯本地确定性编译 · 零云端通信捍卫论文隐私 · 彻底终结大模型排版幻觉与格式跑版**
+> **100% 纯本地编译 · 零上云保护论文隐私 · 优化大模型排版幻觉与格式跑偏**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-green.svg)](https://www.python.org/)
@@ -28,7 +28,7 @@
 
 - 🎯 **双视图交互设计**：
   - **默认极简流**：传稿 $\rightarrow$ 选标准 $\rightarrow$ 秒级排版 $\rightarrow$ 导出 DOCX 与 **X-Ray 实时透视比对**。
-  - **详细与 Agent 智排**：高校杂乱通知智能提取、人机安全回环（HITL 段落审核）、AI 学术二次盲审质检。
+  - **详细与 Agent 智排**：高校格式通知智能提取、人机安全回环（HITL 段落审核）、AI 学术二次盲审质检。
 - 🛠️ **出版级 OOXML 物理重构**：
   - **学术三线表 (Booktabs)**：顶底线 1.5pt、栏目线 0.75pt、表头跨页自动重复 (`tblHeader`) 与行防截断 (`cantSplit`)。
   - **标题防孤行体系**：全篇标题注入 `keepNext` 与 `keepLines`，杜绝标题单独遗留在页脚；正文开启寡行控制 (`widowControl`)。
@@ -50,15 +50,15 @@
 
 ![本地流水线编译](docs/images/workflow_step3_compile_pipeline.png)
 
-#### 步骤 04 · 成果交付与 X-Ray 实时透视比对
+#### 步骤 04 · 成果交付与实时比对
 > **核心亮点**：支持左右滑动比对。左侧直观红框标注原始排版事故（字体混杂、段前未留白、手动空格、单线表、公式乱码），右侧严格依照国标与高校规约闭环重构。
 
 ![成果交付与透视比对](docs/images/workflow_step4_xray_delivery.png)
 
 ---
 
-### 2️⃣ 深度排版协同工作台 (Agent 智排 & HITL 审批)
-> 专为处理复杂论文疑难杂症打造：支持识别隐蔽正文引注转物理脚注、动态 SEQ 题注域修复、OMML 公式对齐，并提供**段落级前后 Diff 审计清单**与 `.audit.json` 导出。
+### 2️⃣ 深度排版协同工作台 (Agent 协同)
+> 专为处理复杂论文打造：支持识别隐蔽正文引注转物理脚注、公式对齐，并提供**段落级前后 Diff 审计清单**与 `.audit.json` 导出。
 
 ![深度排版协同工作台](docs/images/workflow_agent_collaborative_workspace.png)
 
