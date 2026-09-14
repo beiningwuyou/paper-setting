@@ -37,6 +37,33 @@
 
 ---
 
+## 🖥️ 工作流与界面全景 (Workflow & UI Gallery)
+
+### 1️⃣ 极简排版流 (4 步极速闭环)
+
+| 步骤 01 · 上传文稿与 42 项隐患诊断 | 步骤 02 · 目标规范与高校模板库设定 |
+| :---: | :---: |
+| <img src="docs/images/workflow_step1_upload_diagnose.png" alt="上传文稿与诊断" width="100%" /> | <img src="docs/images/workflow_step2_template_select.png" alt="目标规范设定" width="100%" /> |
+
+#### 步骤 03 · 确定性内核流水线本地编译 (100% 离线 AST 解析)
+> 实时环形进度仪表盘 + 模块就绪状态卡 + 底层排版流水线控制台实时输出。
+
+![本地流水线编译](docs/images/workflow_step3_compile_pipeline.png)
+
+#### 步骤 04 · 成果交付与 X-Ray 实时透视比对
+> **核心亮点**：支持左右滑动比对。左侧直观红框标注原始排版事故（字体混杂、段前未留白、手动空格、单线表、公式乱码），右侧严格依照国标与高校规约闭环重构。
+
+![成果交付与透视比对](docs/images/workflow_step4_xray_delivery.png)
+
+---
+
+### 2️⃣ 深度排版协同工作台 (Agent 智排 & HITL 审批)
+> 专为处理复杂论文疑难杂症打造：支持识别隐蔽正文引注转物理脚注、动态 SEQ 题注域修复、OMML 公式对齐，并提供**段落级前后 Diff 审计清单**与 `.audit.json` 导出。
+
+![深度排版协同工作台](docs/images/workflow_agent_collaborative_workspace.png)
+
+---
+
 ## 🏛️ 系统架构
 
 ```mermaid
