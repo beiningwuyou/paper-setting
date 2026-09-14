@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paper Setting v1.1 论文排版工作台 · Agent 智排模式</title>
+  <script src="tailwind.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              paper: '#f4f0e6',
+              paperSoft: '#faf7f2',
+              ink: '#18221c',
+              inkSec: '#58655d',
+              inkMuted: '#859188',
+              emerald: '#1c5d43',
+              emeraldHover: '#144632',
+              emeraldLight: '#edf4ee',
+              border: '#e3ddd2',
+              borderLight: '#eeeae1',
+              agent: '#5b4aa6',
+              agentHover: '#493a89',
+              agentLight: '#f3f0fd',
+              agentBorder: '#d9d0f7'
+            }
+          },
+          fontFamily: {
+            serif: ['"Songti SC"', '"Source Han Serif SC"', '"Noto Serif SC"', 'STSong', 'SimSun', 'Georgia', 'serif'],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Helvetica Neue"', '"Segoe UI"', '"Microsoft YaHei"', 'sans-serif']
+          },
+          boxShadow: {
+            'paper': '0 4px 20px -2px rgba(24, 34, 28, 0.05), 0 2px 6px -1px rgba(24, 34, 28, 0.03)',
+            'paper-hover': '0 12px 30px -4px rgba(24, 34, 28, 0.08), 0 4px 10px -2px rgba(24, 34, 28, 0.04)',
+            'agent-glow': '0 0 25px rgba(91, 74, 166, 0.15)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css?v=1.1.6.15" />
+</head>
+
+<body class="min-h-screen text-brand-ink font-sans flex flex-col antialiased selection:bg-brand-agentLight selection:text-brand-agent">
+  <!-- Confetti Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Top Prototype & Security Bar -->
+  <header class="bg-[#14231b] text-white border-b border-black/20 sticky top-0 z-50 px-6 py-2.5 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Left: Logo & Title -->
+      <div class="flex items-center gap-2.5">
+        <span class="font-serif font-bold text-base tracking-tight text-stone-100">
+          Paper Setting
+        </span>
+        <span class="text-xs text-stone-400 font-mono">v1.1</span>
+        <span class="text-stone-600">·</span>
+        <span class="inline-flex items-center gap-1.5 text-xs text-stone-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          本地单机运行
+        </span>
+      </div>
+
+      <!-- Right: Clean Links -->
+      <div class="flex items-center gap-3.5 text-xs font-medium">
+        <a class="text-stone-300 hover:text-white transition-colors" href="#export-delivery" id="topNavExportBtn">
+          导出
+        </a>
+        <a class="text-stone-300 hover:text-white transition-colors" href="#rules" id="topNavRulesBtn">
+          规范库
+        </a>
+        <button class="text-stone-300 hover:text-white transition-colors cursor-pointer" id="topNavPrefBtn" type="button">
+          偏好
+        </button>
+        <div class="h-3 w-px bg-white/20"></div>
+        <button class="text-stone-300 hover:text-white px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors cursor-pointer text-xs" id="topNavMcpBtn" type="button" title="开发者高级能力：Cursor / Claude / IDE 外部 MCP 接入">
+          开发者接入
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 py-6 flex flex-col gap-6">
+
+    <!-- Top Mode Switcher Bar -->
+    <div class="flex items-center justify-center">
+      <div class="bg-[#e7e1d4] p-1 rounded-full border border-brand-border flex items-center shadow-xs relative max-w-xs w-full" id="modeSegmentedControl">
+        <button id="btnModeMinimal" class="flex-1 py-1.5 px-4 rounded-full bg-white text-stone-900 shadow-xs font-semibold text-xs border border-stone-200 transition-all cursor-pointer text-center">
+          极简排版
+        </button>
+        <button id="btnModeDetailed" class="flex-1 py-1.5 px-4 rounded-full transition-all font-medium text-xs text-stone-600 hover:text-stone-900 cursor-pointer border-transparent bg-transparent text-center">
+          详细排版
+        </button>
+      </div>
+    </div>
+
+
+    <!-- ==================== VIEW 1: MINIMALIST WORKBENCH ==================== -->
+    <div id="viewMinimal" class="max-w-4xl mx-auto w-full flex flex-col gap-6">
+      <!-- 4-Step Stepper Navigation -->
+      <div class="stepper" id="stepperNav">
+        <div class="step-tab active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-info">
+            <strong>上传初稿</strong>
+          </div>
+        </div>
+        <div class="step-tab" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-info">
+            <strong>目标规范</strong>
+          </div>
+        </div>
+        <div class="step-tab" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-info">
+            <strong>本地编译</strong>
+          </div>
+        </div>
+        <div class="step-tab" data-step="4">
+          <div class="step-circle">4</div>
+          <div class="step-info">
+            <strong>导出成品</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: UPLOAD -->
+      <section class="card-panel" id="panelStep1">
+        <h2>上传论文初稿</h2>
+        <div class="upload-dropzone" id="uploadDropzone">
+          <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <div class="upload-title">点击或拖拽上传论文文档 (.docx)</div>
+          <input type="file" id="fileInput" accept=".docx,.doc" style="display: none;" />
+          <div>
+            <button type="button" class="demo-file-trigger" id="demoFileTrigger">
+              载入示例论文
+            </button>
+          </div>
+        </div>
+
+        <!-- File Loaded Banner -->
+        <div class="file-loaded-banner" id="fileLoadedBanner" style="display: none;">
+          <div class="file-loaded-info">
+            <strong id="bannerFileName">论文初稿演示样本.docx</strong>
+            <p id="bannerFileDesc">已载入文档</p>
+          </div>
+          <div class="file-loaded-action">
+            <button type="button" onclick="document.getElementById('fileInput').click()">重新选择</button>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn-primary" id="btnToStep2" disabled>
+            下一步：选择排版规范 →
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 2: CHOOSE STANDARD -->
+      <section class="card-panel" id="panelStep2" style="display: none;">
+        <h2>选择目标排版规范</h2>
+
+        <div class="standards-grid" id="standardsGrid">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <div class="text-xs text-stone-600 bg-stone-50 p-2.5 rounded-lg border border-stone-200 flex justify-between items-center">
+          <span>当前选定：<strong id="selectedStdName" class="text-emerald-800">GB/T 7713.1-2006 学位论文通用规范</strong></span>
+        </div>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary" id="btnBackToStep1">← 上一步</button>
+          <button type="button" class="btn btn-primary" id="btnStartFormatting">
+            开始排版
+          </button>
+        </div>
+      </section>
+
+      <!-- STEP 3: FORMATTING EXECUTION (RADIAL GAUGE) -->
+      <section class="card-panel" id="panelStep3" style="display: none;">
+        <h2 style="text-align: center;">正在排版处理...</h2>
+        <div class="progress-container">
+          <!-- SVG Radial Gauge Ring -->
+          <div class="radial-gauge-wrapper">
+            <svg class="radial-svg" viewBox="0 0 200 200">
+              <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
+              <circle class="gauge-bar" id="gaugeBar" cx="100" cy="100" r="90"></circle>
+            </svg>
+            <div class="gauge-text-overlay">
+              <div class="gauge-percent" id="gaugePercent">0%</div>
+            </div>
+          </div>
+
+          <div style="font-size: 15px; font-weight: 600; color: var(--ink-primary); margin-bottom: 6px;"
+            id="gaugeStatusText">
+          </div>
+
+          <!-- 4 Phase Pipeline -->
+          <div class="stage-pipeline">
+            <div class="stage-step" id="stage0">1. 结构拓扑识别</div>
+            <div class="stage-step" id="stage1">2. 样式差异计算</div>
+            <div class="stage-step" id="stage2">3. 规范样式注入</div>
+            <div class="stage-step" id="stage3">4. 完整性自审</div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- STEP 4: EXPORT & X-RAY DELIVERY -->
+      <section class="card-panel" id="panelStep4" style="display: none;">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-stone-900">
+              排版完成与质检报告
+            </h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200" id="qaStandardBadge">
+              已对齐目标规范
+            </span>
+          </div>
+        </div>
+
+        <!-- AI Blind Review Scorecard & Breakdown -->
+        <div class="qa-score-card bg-white border border-stone-200 rounded-xl p-5 shadow-xs space-y-4">
+          <!-- Top Row: Big Score + Verdict Badge + Quick Summary -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-4 border-b border-stone-100">
+            <div class="flex items-center gap-4">
+              <!-- Circular Score Ring -->
+              <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+                <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="#e8e5dc" stroke-width="8" fill="transparent"></circle>
+                  <circle id="qaScoreCircle" cx="50" cy="50" r="42" stroke="#1c5d43" stroke-width="8" stroke-dasharray="264" stroke-dashoffset="10" stroke-linecap="round" fill="transparent" class="transition-all duration-700"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-xl font-bold font-mono text-stone-900 leading-none" id="qaScoreValue">96</span>
+                  <span class="text-[9px] text-stone-400 font-medium mt-0.5">评分</span>
+                </div>
+              </div>
+
+              <!-- Verdict & Rating -->
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-700 text-white" id="qaVerdictBadge">
+                    极优通过 (免答辩格式复核)
+                  </span>
+                </div>
+                <div class="text-xs text-stone-600 leading-snug" id="qaQuickVerdictText">
+                  文档学术要素齐备，首行缩进、三线表规范与参考文献顺序编码均已达到标准。
+                </div>
+              </div>
+            </div>
+
+            <!-- Sub-dimension Progress Bars (4 Bars) -->
+            <div class="grid grid-cols-2 gap-x-6 gap-y-2 min-w-[280px] text-xs">
+              <!-- Dim 1 -->
+              <div>
+                <div class="flex justify-between text-stone-600 mb-0.5">
+                  <span>结构完整度</span>
+                  <span class="font-mono font-semibold text-stone-800" id="qaDimStructureScore">24 / 25</span>
+                </div>
+                <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-600 rounded-full transition-all duration-700" id="qaDimStructureBar" style="width: 96%"></div>
+                </div>
+              </div>
+              <!-- Dim 2 -->
+              <div>
+                <div class="flex justify-between text-stone-600 mb-0.5">
+                  <span>排版规约</span>
+                  <span class="font-mono font-semibold text-stone-800" id="qaDimTypographyScore">25 / 25</span>
+                </div>
+                <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-600 rounded-full transition-all duration-700" id="qaDimTypographyBar" style="width: 100%"></div>
+                </div>
+              </div>
+              <!-- Dim 3 -->
+              <div>
+                <div class="flex justify-between text-stone-600 mb-0.5">
+                  <span>图表规范</span>
+                  <span class="font-mono font-semibold text-stone-800" id="qaDimTablesScore">24 / 25</span>
+                </div>
+                <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-blue-600 rounded-full transition-all duration-700" id="qaDimTablesBar" style="width: 96%"></div>
+                </div>
+              </div>
+              <!-- Dim 4 -->
+              <div>
+                <div class="flex justify-between text-stone-600 mb-0.5">
+                  <span>引注匹配</span>
+                  <span class="font-mono font-semibold text-stone-800" id="qaDimCitationsScore">23 / 25</span>
+                </div>
+                <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-600 rounded-full transition-all duration-700" id="qaDimCitationsBar" style="width: 92%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviewer Commentary Box -->
+          <div class="bg-stone-50/80 rounded-lg p-3 border border-stone-200/60 space-y-1.5">
+            <div class="text-xs font-bold text-stone-700">
+              综合审定意见
+            </div>
+            <p class="text-xs text-stone-600 leading-relaxed" id="qaReviewerSummary">
+              文稿结构严谨，学术要素齐备。正文已统一规范为宋体小四与 Times New Roman 1.5倍行距，所有表格已升级为标准三线表（顶底线1.5pt），正文引注与文末参考文献顺序编码完全一致。
+            </p>
+          </div>
+
+          <!-- Detailed Issues List (Collapsible / Filterable) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-stone-700 flex items-center gap-1.5">
+                <span>复核清单</span>
+                <span class="text-[11px] font-normal text-stone-400" id="qaIssuesCountText">(共 3 项建议)</span>
+              </span>
+              <div class="flex items-center gap-1 text-[11px]" id="qaIssueFilters">
+                <button type="button" class="qa-filter-btn px-2 py-0.5 rounded font-semibold bg-stone-200 text-stone-800 cursor-pointer" data-filter="all">全部</button>
+                <button type="button" class="qa-filter-btn px-2 py-0.5 rounded text-stone-500 hover:text-stone-800 cursor-pointer" data-filter="high">高危 (0)</button>
+                <button type="button" class="qa-filter-btn px-2 py-0.5 rounded text-stone-500 hover:text-stone-800 cursor-pointer" data-filter="recommendation">建议 (3)</button>
+              </div>
+            </div>
+            <div class="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scrollbar text-xs" id="qaIssuesContainer">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Conservation & Zero Tamper Proof Card (Reducing Trust Cost) -->
+        <div class="mt-4 p-3.5 rounded-xl border border-stone-200 bg-[#fbfbf9] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs" id="textConservationCard">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm flex-shrink-0">
+              ✓
+            </div>
+            <div>
+              <div class="flex items-center gap-2 font-semibold text-stone-800">
+                <span>文字守恒校验</span>
+                <span class="px-1.5 py-0.2 rounded text-[10px] font-mono bg-emerald-50 text-emerald-700 border border-emerald-200" id="textConservationBadge">100.00% 守恒</span>
+              </div>
+              <p class="text-[11px] text-stone-500 mt-0.5" id="textConservationDesc">
+                原稿 <span class="font-mono font-medium text-stone-700" id="textSrcCharCount">--</span> 字符 · 排版后 <span class="font-mono font-medium text-stone-700" id="textOutCharCount">--</span> 字符 · 100% 纯样式 AST 编译，零正文删改
+              </p>
+            </div>
+          </div>
+          <div class="text-[11px] text-stone-400 font-mono flex-shrink-0 text-right">
+            <span>零语义篡改 · 确定性核验</span>
+          </div>
+        </div>
+
+        <!-- Progressive Disclosure Callout -->
+        <div class="mt-3 p-3 rounded-xl border border-emerald-200/80 bg-emerald-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs" id="progressiveDisclosureBox">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 flex-shrink-0" id="progressiveDot"></span>
+            <span class="text-stone-700" id="progressiveDisclosureText">
+              各项排版规范均达标，建议直接导出。如需对各段落执行细粒度原子级审查，可进入深入模式。
+            </span>
+          </div>
+          <button type="button" class="text-emerald-800 hover:text-emerald-950 font-semibold flex items-center gap-1 underline underline-offset-2 flex-shrink-0 cursor-pointer text-xs" id="btnGoToDetailedReview">
+            <span>深入复核与单项微调</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <!-- Honest Boundary Note -->
+        <div class="mt-2 text-[11px] text-stone-400 flex items-center justify-between px-1">
+          <span>系统边界说明：本系统专注版面、三线表、标题层级与 GB/T 7714 规范对齐；外文特殊引注与手绘公式建议人工复核。</span>
+        </div>
+
+        <!-- Formatting Highlights -->
+        <div class="highlights-box mt-4">
+          <h3 class="font-bold text-stone-800 mb-2">排版调整摘要</h3>
+          <ul id="highlightsList">
+            <!-- Injected via JavaScript -->
+          </ul>
+        </div>
+
+        <!-- X-Ray Visual Before vs After Inspector -->
+        <div class="xray-container mt-4">
+          <div class="xray-title">排版前后比对</div>
+          <div class="xray-window" id="xrayWindow">
+            <!-- Underneath: Before Sheet -->
+            <div class="xray-sheet xray-before" id="xrayBeforeSheet">
+              <span class="xray-badge before" id="xrayBeforeBadge">排版前</span>
+              <div class="xray-content-pane" id="xrayBeforeContent">
+                <p style="color: #999; font-style: italic;">等待文档排版后呈现原稿对比...</p>
+              </div>
+            </div>
+
+            <!-- Overlay: After Sheet (Clipped) -->
+            <div class="xray-sheet xray-after" id="xrayAfterSheet">
+              <span class="xray-badge after" id="xrayAfterBadge">排版后</span>
+              <div class="xray-content-pane" id="xrayAfterContent">
+                <p style="color: #999; font-style: italic;">等待文档排版后呈现成品对比...</p>
+              </div>
+            </div>
+
+            <!-- Slider Line & Handle -->
+            <div class="xray-slider-line" id="xrayLine"></div>
+            <div class="xray-handle" id="xrayHandle" title="左右拖动比对">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                  d="M8 7l-5 5m0 0l5 5m-5-5h18m-5-5l5 5m0 0l-5 5" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Download Buttons -->
+        <div class="action-buttons flex flex-wrap gap-3 items-center justify-between pt-2">
+          <button type="button" class="btn btn-secondary" id="btnFormatAnother">排版下一篇</button>
+          <div class="flex items-center gap-2">
+            <button type="button" class="btn btn-secondary text-xs" id="btnMinimalDownloadPdf" onclick="window.downloadPdfPreset && window.downloadPdfPreset()">
+              导出 PDF
+            </button>
+            <button type="button" class="btn btn-secondary text-xs" id="btnMinimalDownloadAudit" onclick="window.downloadAuditPreset && window.downloadAuditPreset()">
+              导出审计表
+            </button>
+            <button type="button" class="btn btn-primary font-semibold shadow-xs" id="btnDownload">
+              下载论文 (.docx)
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ==================== VIEW 2: DETAILED & AGENT WORKBENCH (SCREEN 9) ==================== -->
+    <div id="panelDetailed" class="w-full flex flex-col gap-6" style="display: none;">
+
+      <!-- Section 1: Toolbar Banner -->
+      <section class="rounded-xl p-4 bg-stone-50 border border-stone-200 shadow-xs relative transition-all z-30">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <h1 class="font-serif font-bold text-lg text-brand-ink tracking-tight">
+              详细排版控制台
+            </h1>
+            <button class="hidden" id="bannerMcpBtn" type="button"></button>
+          </div>
+          <div class="relative flex items-center gap-3 self-start md:self-auto z-50">
+            <input accept=".docx,.doc" class="hidden" id="doc-upload-input" type="file">
+            <button class="group bg-white px-3 py-1.5 rounded-lg border border-stone-300 hover:border-stone-400 shadow-2xs transition-all flex items-center gap-2 cursor-pointer text-left text-xs" id="file-switcher-btn" type="button">
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium" id="current-doc-badge">就绪</span>
+              <span class="text-stone-800 font-mono font-medium" id="current-file-name">论文稿件.docx</span>
+              <span class="text-stone-400 text-[11px] ml-1">更换</span>
+            </button>
+            <div class="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-lg border border-stone-200 z-50 p-4 space-y-3 hidden" id="file-switcher-dropdown">
+              <div class="flex items-center justify-between pb-2 border-b border-stone-100">
+                <span class="text-xs font-bold text-brand-ink">文稿管理</span>
+                <button class="text-stone-400 hover:text-stone-700 p-0.5 rounded transition-colors cursor-pointer" id="closeDropdownBtn" type="button">×</button>
+              </div>
+              <div class="bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs">
+                <div class="flex items-center justify-between text-[11px] text-stone-500 mb-1">
+                  <span>原稿概况</span>
+                  <span class="text-emerald-700 font-mono font-semibold" id="statsParseStatus">已解析</span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 text-center">
+                  <div class="bg-white p-1.5 rounded border border-stone-100">
+                    <div class="text-xs font-bold font-mono text-brand-ink" id="statCharCount">16,420</div>
+                    <div class="text-[10px] text-stone-400">总字数</div>
+                  </div>
+                  <div class="bg-white p-1.5 rounded border border-stone-100">
+                    <div class="text-xs font-bold font-mono text-blue-700" id="statTableCount">18</div>
+                    <div class="text-[10px] text-stone-400">图表数</div>
+                  </div>
+                  <div class="bg-white p-1.5 rounded border border-stone-100">
+                    <div class="text-xs font-bold font-mono text-brand-agent" id="statFormulaCount">32</div>
+                    <div class="text-[10px] text-stone-400">公式数</div>
+                  </div>
+                </div>
+              </div>
+              <div class="border border-dashed border-stone-300 hover:border-stone-400 bg-stone-50 rounded-lg p-3 text-center cursor-pointer transition-colors" id="dropdownUploadTrigger">
+                <div class="text-xs font-medium text-stone-700">点击或拖拽上传新文稿</div>
+              </div>
+              <button type="button" id="detailedDemoBtn" class="w-full py-1.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium text-xs rounded-lg transition-all text-center cursor-pointer">
+                载入示例论文
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: 3 Feature Summary Cards -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4" id="metrics-filter-grid">
+        <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-xs flex flex-col justify-between" id="metricCardFootnote">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-sm text-stone-800">正式物理脚注</h3>
+            <span class="text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              24 处待处理
+            </span>
+          </div>
+          <p class="text-xs text-stone-500 leading-relaxed">
+            识别文内 [1]、[2-4] 上标标注，转为 Word 原生物理脚注，自动清理文末冗余。
+          </p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-xs flex flex-col justify-between" id="metricCardCrossref">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-sm text-stone-800">图表交叉引用</h3>
+            <span class="text-[11px] font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              18 张图表
+            </span>
+          </div>
+          <p class="text-xs text-stone-500 leading-relaxed">
+            升级题注为 SEQ 题注域，正文“见图X”重建为可点击动态超链接。
+          </p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-stone-200 shadow-xs flex flex-col justify-between" id="metricCardOMML">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="font-bold text-sm text-stone-800">数学公式排版</h3>
+            <span class="text-[11px] font-semibold text-purple-800 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+              32 处公式
+            </span>
+          </div>
+          <p class="text-xs text-stone-500 leading-relaxed">
+            转为 Office Math (OMML) 结构，配置版心居中与序号右对齐制表位。
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 3: 排版规则提炼 -->
+      <section class="bg-white rounded-xl p-5 border border-stone-200 shadow-xs space-y-3" id="rules">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+          <div>
+            <h2 class="font-bold text-base text-stone-800">
+              排版规则提炼
+            </h2>
+          </div>
+          <!-- Agent Source Switcher -->
+          <div class="flex items-center gap-1 bg-stone-100 p-1 rounded-lg text-xs" id="agentSourceGroup">
+            <button type="button" class="agent-src-btn px-2.5 py-1 rounded-md font-semibold bg-white text-stone-900 shadow-2xs cursor-pointer" data-source="deepseek">
+              DeepSeek 本地
+            </button>
+            <button type="button" class="agent-src-btn px-2.5 py-1 rounded-md font-medium text-stone-600 hover:text-stone-900 cursor-pointer" data-source="workbuddy">
+              WorkBuddy 协同
+            </button>
+            <button type="button" class="agent-src-btn px-2.5 py-1 rounded-md font-medium text-stone-600 hover:text-stone-900 cursor-pointer" data-source="offline">
+              离线引擎 (0 Token)
+            </button>
+          </div>
+        </div>
+
+        <!-- Input Box & Dispatch Action -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center text-xs">
+            <label class="text-stone-700 font-medium">
+              输入格式要求通知：
+            </label>
+            <button type="button" class="text-stone-600 hover:text-stone-900 cursor-pointer font-medium text-xs" id="btnFillSampleNotice" onclick="window.fillSampleNoticePreset && window.fillSampleNoticePreset()">
+              填入范例
+            </button>
+          </div>
+
+          <textarea class="w-full rounded-lg p-3 text-xs text-stone-800 bg-[#fbfaf8] border border-stone-300 focus:border-stone-500 focus:outline-none font-mono leading-relaxed custom-scrollbar" id="ruleTextInputArea" rows="3" placeholder="在此粘贴学校或期刊排版要求通知...">各学院请注意：今年本科学位及硕士学位论文正文请统一采用仿宋字体 (12pt)，西文字符与数字采用 Times New Roman，行间距设置为 1.5 倍行距。
+页边距要求：上边距 2.8cm，下边距 2.5cm，左边距 3.0cm，右边距 2.5cm。
+正文中所有参考文献引用处必须采用页下真正物理脚注形式（每页重新编号），公式编号右顶格对齐。</textarea>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div class="flex items-center gap-2 text-xs text-stone-500" id="currentAgentPromptInfo">
+              <span>调用：<strong class="text-stone-700" id="currentSelectedAgentName">DeepSeek 本地智能体</strong></span>
+            </div>
+            <button class="px-4 py-1.5 bg-stone-900 hover:bg-black text-white text-xs font-semibold rounded-lg shadow-xs transition-all cursor-pointer" id="btnTriggerAgentDispatch" type="button">
+              <span id="btnTriggerAgentText">提炼排版规则</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Agent Thought Stream & Live Diagnosis Console -->
+        <div id="agentThoughtConsole" class="rounded-lg border border-stone-200 bg-stone-50/70 p-3.5 space-y-2.5 hidden">
+          <div class="flex items-center justify-between border-b border-stone-200/60 pb-2">
+            <strong class="text-xs text-stone-800" id="thoughtConsoleTitle">
+              提炼过程
+            </strong>
+            <span class="text-[10px] font-mono text-stone-500" id="thoughtConfidenceBadge">置信度: 98.5%</span>
+          </div>
+
+          <!-- Thought Steps Stream -->
+          <div class="space-y-1 font-mono text-[11px] text-stone-600" id="agentThoughtSteps">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Extracted Result: Academic Contract Cards -->
+          <div class="p-3.5 bg-white rounded-lg border border-stone-200 space-y-2.5">
+            <div class="flex items-center justify-between border-b border-stone-100 pb-1.5">
+              <span class="text-xs font-bold text-stone-800">
+                已提炼排版规则
+              </span>
+              <span class="text-[10px] text-stone-500 font-mono" id="contractMatchedCount">已解析</span>
+            </div>
+            <!-- Dynamic Contract Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs" id="agentExtractedContractGrid">
+              <!-- Populated dynamically -->
+            </div>
+            <!-- Raw Extracted Pills as fallback -->
+            <div class="flex flex-wrap gap-1.5 text-xs pt-1 border-t border-stone-100" id="agentExtractedPills">
+              <!-- Populated dynamically -->
+            </div>
+
+            <!-- Human-in-the-Loop Quick Calibration Box -->
+            <div class="p-3 bg-[#fdfcf9] rounded-lg border border-stone-200/90 space-y-2 mt-2" id="hitlCalibrationBox">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-stone-700">快速校准胶囊 (点击微调)</span>
+                <span class="text-[10px] text-stone-400">消除最后 1% 歧义不确定性</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <!-- Tunable Item 1: Body Font -->
+                <div class="p-2 rounded bg-white border border-stone-200 space-y-1">
+                  <span class="text-[10px] text-stone-500 font-medium block">正文字体</span>
+                  <select id="hitlBodyFontSelect" class="w-full text-xs font-semibold bg-transparent border-0 p-0 text-stone-800 cursor-pointer focus:ring-0">
+                    <option value="宋体">宋体</option>
+                    <option value="仿宋">仿宋</option>
+                    <option value="楷体">楷体</option>
+                    <option value="微软雅黑">微软雅黑</option>
+                  </select>
+                </div>
+                <!-- Tunable Item 2: Body Size -->
+                <div class="p-2 rounded bg-white border border-stone-200 space-y-1">
+                  <span class="text-[10px] text-stone-500 font-medium block">正文字号</span>
+                  <select id="hitlBodySizeSelect" class="w-full text-xs font-semibold bg-transparent border-0 p-0 text-stone-800 cursor-pointer focus:ring-0">
+                    <option value="12.0">小四 (12pt)</option>
+                    <option value="10.5">五号 (10.5pt)</option>
+                    <option value="14.0">四号 (14pt)</option>
+                  </select>
+                </div>
+                <!-- Tunable Item 3: Line Spacing -->
+                <div class="p-2 rounded bg-white border border-stone-200 space-y-1">
+                  <span class="text-[10px] text-stone-500 font-medium block">行间距</span>
+                  <select id="hitlLineSpacingSelect" class="w-full text-xs font-semibold bg-transparent border-0 p-0 text-stone-800 cursor-pointer focus:ring-0">
+                    <option value="1.5">1.5 倍行距</option>
+                    <option value="1.25">1.25 倍行距</option>
+                    <option value="20.0">固定值 20 磅</option>
+                    <option value="22.0">固定值 22 磅</option>
+                  </select>
+                </div>
+                <!-- Tunable Item 4: Citation Style -->
+                <div class="p-2 rounded bg-white border border-stone-200 space-y-1">
+                  <span class="text-[10px] text-stone-500 font-medium block">引注制式</span>
+                  <select id="hitlCitationStyleSelect" class="w-full text-xs font-semibold bg-transparent border-0 p-0 text-stone-800 cursor-pointer focus:ring-0">
+                    <option value="GB/T 7714-2015 顺序编码制">GB/T 7714 顺序编码</option>
+                    <option value="页下真脚注 (著者-出版年制)">页下真脚注</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Apply Button & Boundary Note -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+            <span class="text-[11px] text-stone-400">边界说明：Agent 负责非标通知到排版契约的逆向提取；若存在模糊歧义，可直接微调上方胶囊。</span>
+            <button type="button" id="btnApplyAgentRulesToDoc" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg shadow-xs transition-all cursor-pointer flex-shrink-0">
+              应用规则至排版方案
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: 修改计划审查 -->
+      <section class="bg-white rounded-xl p-5 border border-stone-200 shadow-xs space-y-3" id="plan-review">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+          <h2 class="font-bold text-base text-stone-800">
+            修改计划审查
+          </h2>
+          <div class="flex items-center gap-3 text-xs">
+            <label class="flex items-center gap-1.5 cursor-pointer text-stone-700 font-medium">
+              <input checked class="w-3.5 h-3.5 rounded text-brand-agent focus:ring-brand-agent border-stone-300" id="check-all-changes" type="checkbox">
+              全选批准
+            </label>
+            <span class="text-stone-300">|</span>
+            <button class="text-stone-500 hover:text-stone-900 cursor-pointer" id="btnFilterHighRisk" type="button">
+              仅看高危修改
+            </button>
+          </div>
+        </div>
+        <div class="overflow-x-auto border border-stone-200 rounded-lg">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-stone-50 text-stone-600 font-semibold border-b border-stone-200 text-[11px]">
+              <tr>
+                <th class="py-2.5 px-3 w-32" scope="col">分类</th>
+                <th class="py-2.5 px-3 w-5/12" scope="col">修改前</th>
+                <th class="py-2.5 px-3 w-5/12" scope="col">修改后</th>
+                <th class="py-2.5 px-3 text-center w-24" scope="col">状态</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-200 bg-white" id="detailedDiffTbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+        <div class="rounded-lg p-3 bg-stone-50 border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="text-xs text-stone-600 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" id="statusPulseDot"></span>
+            执行状态：<span id="agentExecutionStatusText" class="font-semibold text-stone-800">待审查</span>
+            <span id="agentExecutionDescText" class="hidden"></span>
+          </div>
+          <button class="bg-emerald-700 hover:bg-emerald-800 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow-xs cursor-pointer transition-all active:scale-95" id="btn-execute-agent" type="button">
+            执行排版
+          </button>
+        </div>
+      </section>
+
+      <!-- Section 5: 成品导出与交付 -->
+      <section class="bg-white rounded-xl p-5 border border-stone-200 shadow-xs space-y-4" id="export-delivery">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+          <h2 class="font-bold text-base text-stone-800">
+            成果导出与交付
+          </h2>
+        </div>
+        <div class="p-2.5 rounded-lg bg-stone-50 border border-stone-200 text-stone-600 text-xs flex items-center justify-between" id="delivery-lock-banner">
+          <span id="deliveryLockMsg">完成排版后即可下载成果文件</span>
+          <button class="text-xs bg-stone-800 text-white px-3 py-1 rounded-md font-medium hover:bg-black transition-colors cursor-pointer" id="btnQuickUnlock" type="button">
+            一键执行排版
+          </button>
+        </div>
+
+        <!-- Dynamic AI Blind Review QA Report for Detailed Mode -->
+        <div id="detailedQABanner" class="bg-stone-50 rounded-lg p-3 border border-stone-200 space-y-2 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-white border border-stone-200 flex flex-col items-center justify-center">
+                <span class="text-sm font-bold font-mono text-stone-900 leading-none" id="detailedQAScore">96</span>
+                <span class="text-[8px] text-stone-400 font-medium mt-0.5">评分</span>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-stone-800">质检结果</span>
+                  <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-700 text-white" id="detailedQAGrade">极优通过</span>
+                </div>
+                <p class="text-xs text-stone-500 mt-0.5" id="detailedQASummary">文稿各项要素合规，三线表与顺序编码引用完全对齐。</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs font-mono">
+              <span class="px-2 py-0.5 bg-emerald-50 text-emerald-800 rounded border border-emerald-200 text-[11px]" id="detailedQAConservation">文字 100% 守恒</span>
+              <span class="px-2 py-0.5 bg-white rounded border border-stone-200" id="detailedQADim1">结构 24/25</span>
+              <span class="px-2 py-0.5 bg-white rounded border border-stone-200" id="detailedQADim2">排版 25/25</span>
+              <span class="px-2 py-0.5 bg-white rounded border border-stone-200" id="detailedQADim3">图表 24/25</span>
+              <span class="px-2 py-0.5 bg-white rounded border border-stone-200" id="detailedQADim4">引注 23/25</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Card 1: DOCX -->
+          <div class="rounded-xl p-4 bg-white border-2 border-emerald-600 shadow-xs flex flex-col justify-between">
+            <div class="space-y-1 mb-3">
+              <h3 class="font-bold text-sm text-stone-900">
+                排版论文 (.docx)
+              </h3>
+              <p class="text-xs text-stone-500">
+                Word 原生文档，含题注域、物理脚注与 OMML 公式。
+              </p>
+            </div>
+            <button class="w-full bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer" id="btn-download-docx" type="button" onclick="window.downloadDocxPreset && window.downloadDocxPreset()">
+              下载论文 (.docx)
+            </button>
+          </div>
+          <!-- Card 2: PDF -->
+          <div class="rounded-xl p-4 bg-white border border-stone-200 shadow-xs flex flex-col justify-between">
+            <div class="space-y-1 mb-3">
+              <h3 class="font-bold text-sm text-stone-900">
+                学术 PDF (.pdf)
+              </h3>
+              <p class="text-xs text-stone-500">
+                锁定版心字距，嵌入目录书签，适合直接审阅。
+              </p>
+            </div>
+            <button class="w-full bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 px-3 py-2 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer" id="btn-download-pdf" type="button" onclick="window.downloadPdfPreset && window.downloadPdfPreset()">
+              导出 PDF (.pdf)
+            </button>
+          </div>
+          <!-- Card 3: Audit JSON -->
+          <div class="rounded-xl p-4 bg-white border border-stone-200 shadow-xs flex flex-col justify-between">
+            <div class="space-y-1 mb-3">
+              <h3 class="font-bold text-sm text-stone-900">
+                差异审计表 (.audit.json)
+              </h3>
+              <p class="text-xs text-stone-500">
+                保留修改前后 XML 节点 Diff，供机器查验。
+              </p>
+            </div>
+            <button class="w-full bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 px-3 py-2 rounded-lg text-xs font-semibold shadow-xs transition-all cursor-pointer" id="btn-download-audit" type="button" onclick="window.downloadAuditPreset && window.downloadAuditPreset()">
+              导出审计清单 (.json)
+            </button>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-stone-100">
+          <div class="flex flex-wrap items-center gap-4 text-xs text-stone-600">
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-stone-900">
+              <input checked class="rounded text-emerald-700" id="chkTrackChanges" type="checkbox">
+              <span>独立修订对比稿</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-stone-900">
+              <input checked class="rounded text-emerald-700" id="chkCleanRefs" type="checkbox">
+              <span>清理未引用参考文献</span>
+            </label>
+            <label class="flex items-center gap-1.5 cursor-pointer hover:text-stone-900">
+              <input class="rounded text-emerald-700" id="chkWatermark" type="checkbox">
+              <span>盲审浅水印</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: 本地特征沉淀 -->
+      <section class="p-3 rounded-lg bg-stone-50 border border-stone-200 flex items-center justify-between text-xs text-stone-600">
+        <label class="flex items-center gap-2 cursor-pointer hover:text-stone-800">
+          <input checked class="w-3.5 h-3.5 rounded text-stone-700" id="chkLocalPrecipitation" type="checkbox">
+          <span>保存本次排版特征至本地（仅作后续单机偏好记忆，零网络上传）</span>
+        </label>
+      </section>
+    </div>
+  </main>
+
+  <!-- Agent MCP Console Modal -->
+  <div id="mcpModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-stone-200 overflow-hidden" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="p-4 border-b border-stone-100 flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base text-stone-900">开发者 MCP 接入配置</h3>
+          <p class="text-xs text-stone-500">通过标准 MCP 协议将本地编辑器连接至 Paper Setting 排版引擎</p>
+        </div>
+        <button id="closeMcpModalBtn" class="text-stone-400 hover:text-stone-700 text-xl px-2 py-1 rounded-lg transition-colors cursor-pointer" type="button">×</button>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="bg-stone-50 px-4 py-2 border-b border-stone-100 flex flex-wrap gap-4 text-xs font-medium text-stone-600">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>MCP Server 协议就绪 (stdio)</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          <span>本地引擎: 127.0.0.1:8770</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+          <span>单机沙箱隔离</span>
+        </div>
+      </div>
+
+      <!-- Main Tabs -->
+      <div class="flex border-b border-stone-100 px-4 gap-2 bg-white text-xs">
+        <button class="mcp-tab-btn py-2 px-3 font-semibold border-b-2 border-emerald-600 text-emerald-800" data-tab="domestic" type="button">国内 Agent 直连</button>
+        <button class="mcp-tab-btn py-2 px-3 font-medium text-stone-500 hover:text-stone-800" data-tab="international" type="button">国际版 (Cursor / Claude)</button>
+        <button class="mcp-tab-btn py-2 px-3 font-medium text-stone-500 hover:text-stone-800" data-tab="tools" type="button">工具集 (7)</button>
+        <button class="mcp-tab-btn py-2 px-3 font-medium text-stone-500 hover:text-stone-800" data-tab="safety" type="button">安全与沙箱原则</button>
+      </div>
+
+
+      <!-- Body -->
+      <div class="p-5 overflow-y-auto flex-1 space-y-4 text-xs">
+        <!-- Tab 1: Domestic Agents (Zero Barrier) -->
+        <div id="mcpTabDomestic" class="space-y-3.5">
+          <!-- Scan Status Bar -->
+          <div class="bg-[#f0f7f3] border border-emerald-200/80 rounded-xl p-3 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="font-semibold text-emerald-900" id="scanSummaryText">已自动检测 Mac 本机 Agent 与运行环境</span>
+            </div>
+            <button id="rescanAgentsBtn" class="px-2.5 py-1 bg-white hover:bg-emerald-50 text-emerald-800 font-semibold rounded-lg border border-emerald-300 shadow-sm transition-colors flex items-center gap-1 cursor-pointer" type="button">
+              <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              <span>重新扫描本机</span>
+            </button>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- WorkBuddy Card -->
+            <div class="p-3.5 bg-stone-50 hover:bg-white border border-stone-200 hover:border-emerald-300 rounded-xl space-y-2.5 transition-all shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">W</div>
+                  <div>
+                    <h4 class="font-bold text-brand-ink">WorkBuddy (腾讯智能工作伙伴)</h4>
+                    <span class="text-[10px] text-stone-500">企业级原生 MCP 协同</span>
+                  </div>
+                </div>
+                <span id="wbBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">已安装</span>
+              </div>
+              <p class="text-stone-600 text-[11px] leading-relaxed">
+                无需复杂配置！点击下方按钮，系统将自动把排版台 MCP 服务写入您的 <code class="bg-stone-200/70 px-1 rounded font-mono">~/.workbuddy/mcp.json</code>（写入前自动备份）。
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button id="autoInjectWorkbuddyBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors flex items-center gap-1 cursor-pointer" type="button">
+                  <span id="wbInjectBtnText">一键写入配置</span>
+                </button>
+                <button id="copyWorkbuddyBtn" class="bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" type="button">复制 JSON</button>
+                <button id="launchWorkbuddyBtn" class="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" type="button">启动 App ↗</button>
+              </div>
+              <div id="wbInjectStatus" class="text-[11px] hidden"></div>
+            </div>
+
+            <!-- Trae Card -->
+            <div class="p-3.5 bg-stone-50 hover:bg-white border border-stone-200 hover:border-blue-300 rounded-xl space-y-2.5 transition-all shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-sm">T</div>
+                  <div>
+                    <h4 class="font-bold text-brand-ink">Trae (字节跳动 AI 原生 IDE)</h4>
+                    <span class="text-[10px] text-stone-500">支持 DeepSeek/Claude 深度编程</span>
+                  </div>
+                </div>
+                <span id="traeBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-stone-200 text-stone-600">未检测到应用</span>
+              </div>
+              <p class="text-stone-600 text-[11px] leading-relaxed">
+                字节跳动国内专研 AI IDE。在项目根目录下创建 <code class="bg-stone-200/70 px-1 rounded font-mono">.trae/mcp.json</code> 即可开启论文排版 Agent 协同。
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button id="copyTraeBtn" class="bg-stone-800 hover:bg-black text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors flex items-center gap-1 cursor-pointer" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  <span id="copyTraeBtnText">复制 Trae 配置</span>
+                </button>
+                <button id="autoInjectTraeBtn" class="bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" type="button">写入 ~/.trae/mcp.json</button>
+              </div>
+              <div id="traeInjectStatus" class="text-[11px] hidden"></div>
+            </div>
+
+            <!-- Doubao / Coze Card -->
+            <div class="p-3.5 bg-stone-50 hover:bg-white border border-stone-200 hover:border-purple-300 rounded-xl space-y-2.5 transition-all shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-sm">豆</div>
+                  <div>
+                    <h4 class="font-bold text-brand-ink">豆包 / 扣子 (Coze 智能体)</h4>
+                    <span class="text-[10px] text-stone-500">国民级对话助手 / 智能体平台</span>
+                  </div>
+                </div>
+                <span id="doubaoBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">已安装</span>
+              </div>
+              <p class="text-stone-600 text-[11px] leading-relaxed">
+                可直接在扣子 (Coze) 创建排版 Bot 并通过 OpenAPI 规范导入 Paper Setting 本地排版引擎；或直接拉起豆包桌面端。
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button id="copyDoubaoOpenApiBtn" class="bg-purple-700 hover:bg-purple-800 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors flex items-center gap-1 cursor-pointer" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                  <span id="copyOpenApiBtnText">复制 OpenAPI 地址</span>
+                </button>
+                <button id="launchDoubaoBtn" class="bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" type="button">启动豆包 ↗</button>
+              </div>
+            </div>
+
+            <!-- DeepSeek / Cherry Studio Card -->
+            <div class="p-3.5 bg-stone-50 hover:bg-white border border-stone-200 hover:border-amber-300 rounded-xl space-y-2.5 transition-all shadow-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm">D</div>
+                  <div>
+                    <h4 class="font-bold text-brand-ink">Cherry Studio / DeepSeek 本地栈</h4>
+                    <span class="text-[10px] text-stone-500">顶尖推理大模型 & 开源客户端</span>
+                  </div>
+                </div>
+                <span id="deepseekBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">已就绪</span>
+              </div>
+              <p class="text-stone-600 text-[11px] leading-relaxed">
+                在 Cherry Studio 的“设置 -&gt; MCP 扩展”中添加本地命令行服务，即可调用 100% 确定性排版算力。
+              </p>
+              <div class="flex flex-wrap items-center gap-2 pt-1">
+                <button id="copyCherryBtn" class="bg-amber-700 hover:bg-amber-800 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-colors flex items-center gap-1 cursor-pointer" type="button">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  <span id="copyCherryBtnText">复制 MCP 命令行</span>
+                </button>
+                <button id="launchDeepseekBtn" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1.5 rounded-lg font-medium transition-colors cursor-pointer" type="button">启动 DeepSeek ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: International Agents (Cursor / Claude / Windsurf) -->
+        <div id="mcpTabInternational" class="space-y-3 hidden">
+          <div class="flex gap-2" id="agentSubtabs">
+            <button class="agent-subtab px-3 py-1 rounded-lg font-bold bg-emerald-700 text-white cursor-pointer" data-agent="cursor" type="button">Cursor</button>
+            <button class="agent-subtab px-3 py-1 rounded-lg font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 cursor-pointer" data-agent="claude" type="button">Claude Desktop</button>
+            <button class="agent-subtab px-3 py-1 rounded-lg font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 cursor-pointer" data-agent="windsurf" type="button">Windsurf</button>
+            <button class="agent-subtab px-3 py-1 rounded-lg font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 cursor-pointer" data-agent="cli" type="button">命令行 / 通用</button>
+          </div>
+
+          <div class="bg-[#151d18] rounded-xl border border-stone-800 overflow-hidden">
+            <div class="bg-[#1c2720] px-3.5 py-2 border-b border-stone-800 flex justify-between items-center text-stone-400">
+              <div>
+                <span>配置文件：</span>
+                <code class="text-emerald-300 font-mono" id="mcpConfigPath">.cursor/mcp.json (项目根目录)</code>
+              </div>
+              <button id="copyMcpConfigBtn" class="bg-[#2b3d32] hover:bg-[#395243] text-emerald-200 px-2.5 py-0.5 rounded font-semibold flex items-center gap-1 transition-colors cursor-pointer" type="button">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                <span id="copyMcpBtnText">复制配置</span>
+              </button>
+            </div>
+            <pre class="p-3 text-emerald-100 font-mono leading-relaxed overflow-x-auto max-h-52"><code id="mcpConfigCode"></code></pre>
+          </div>
+        </div>
+
+        <!-- Tab 2: Tools -->
+        <div id="mcpTabTools" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 hidden">
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">create_job</code><span class="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px]">排版编译</span></div>
+            <p class="text-stone-600">创建排版编译或学校模板注入任务，自动生成段落级 Diff。</p>
+          </div>
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">inspect_template</code><span class="px-1.5 py-0.5 bg-teal-100 text-teal-800 rounded text-[10px]">模板透视</span></div>
+            <p class="text-stone-600">无损透视分析 DOCX 模板的分节、正文占位符与表单字段。</p>
+          </div>
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">get_format_plan</code><span class="px-1.5 py-0.5 bg-purple-100 text-purple-800 rounded text-[10px]">审计计划</span></div>
+            <p class="text-stone-600">读取段落级可审计修改计划与潜在风险项，供 Agent 向作者汇报。</p>
+          </div>
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">get_validation_report</code><span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-[10px]">质检报告</span></div>
+            <p class="text-stone-600">读取排版完成文档的学术格式报告与 100% 内容无损校验结果。</p>
+          </div>
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">list_artifacts</code><span class="px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded text-[10px]">成果交付</span></div>
+            <p class="text-stone-600">列出任务生成的规整版 DOCX、PDF 预览与 operations.json 审计清单。</p>
+          </div>
+          <div class="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
+            <div class="flex justify-between items-center"><code class="font-bold text-emerald-800">list_rule_packs</code><span class="px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded text-[10px]">规范管理</span></div>
+            <p class="text-stone-600">查询国标 GB/T 7713.1、国科大学位论文等出版级规范配置。</p>
+          </div>
+        </div>
+
+        <!-- Tab 3: Safety -->
+        <div id="mcpTabSafety" class="space-y-2.5 hidden text-stone-600">
+          <div class="p-3.5 bg-[#fbfbf9] border border-stone-200 rounded-xl space-y-1">
+            <strong class="text-emerald-800 text-sm block">1. 绝不越权：Agent 只能提议，不能擅改</strong>
+            <p>通用大模型直接生成 Word 文档容易产生文本幻觉并破坏公式。在 Paper Setting 中，Agent 只能生成审查计划，最终补丁必须在 Web 界面由作者人工审批。</p>
+          </div>
+          <div class="p-3.5 bg-[#fbfbf9] border border-stone-200 rounded-xl space-y-1">
+            <strong class="text-emerald-800 text-sm block">2. 零隐私泄露：100% 本地隔离运行</strong>
+            <p>服务绑定 127.0.0.1，排版引擎与 AST 运算完全在本地单机沙箱中进行，未发表的学术成果绝对不会上传至第三方服务器。</p>
+          </div>
+          <div class="p-3.5 bg-[#fbfbf9] border border-stone-200 rounded-xl space-y-1">
+            <strong class="text-emerald-800 text-sm block">3. 机器可读的可审计差量（Diff）</strong>
+            <p>每次排版均保留只读原件，并生成段落级别的 .audit.json 清单。每一项字号、行距、页眉页脚均具备唯一 Operation ID，提供完整的科研可复现性。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 bg-stone-50 border-t border-stone-200 flex justify-between items-center text-xs">
+        <span class="text-stone-500">工作目录可在 PAPER_SETTING_ALLOWED_INPUT_ROOTS 中配置。</span>
+        <button id="closeMcpModalFooterBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer" type="button">完成并返回工作台</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=1.1.6.15"></script>
+</body>
+
+</html>

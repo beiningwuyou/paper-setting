@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paper Setting v1.1 产品交互原型 (基于 Motion 动效与双视图体系)</title>
+  <style>
+    :root {
+      --bg-app: #f4f0e6;
+      --surface-card: #fffdfa;
+      --surface-elevated: #ffffff;
+      --border-subtle: #e2dcd0;
+      --border-strong: #c9c2b2;
+      --ink-primary: #18221c;
+      --ink-secondary: #58655d;
+      --ink-muted: #859188;
+      --brand-emerald: #1c5d43;
+      --brand-emerald-hover: #12402e;
+      --brand-emerald-light: #edf4ee;
+      --brand-emerald-glow: rgba(28, 93, 67, 0.25);
+      --agent-purple: #5b4aa6;
+      --agent-purple-light: #f3f0fd;
+      --state-success: #287a55;
+      --spring-ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --font-serif: "Songti SC", "Source Han Serif SC", Georgia, serif;
+      --font-sans: Inter, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--ink-primary);
+      background: radial-gradient(circle at 12% 0, #e6ecdc 0, transparent 38rem), var(--bg-app);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Confetti Canvas Layer */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Top Prototype Toolbar */
+    .prototype-bar {
+      background: #18221c;
+      color: #9eb1a5;
+      font-size: 12px;
+      padding: 9px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .prototype-bar strong { color: #fff; }
+    .prototype-bar .quick-links { display: flex; gap: 8px; align-items: center; }
+    .prototype-bar button {
+      background: #27372d;
+      border: 1px solid #3d4f43;
+      color: #e2eee6;
+      padding: 3px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s var(--spring-ease);
+    }
+    .prototype-bar button:hover { background: var(--brand-emerald); color: #fff; }
+
+    .main-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 100px;
+    }
+
+    /* Sliding Indicator Mode Segmented Control */
+    .mode-switch-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .mode-segmented-control {
+      display: inline-flex;
+      background: #e2ddd0;
+      padding: 4px;
+      border-radius: 32px;
+      border: 1px solid var(--border-strong);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
+      position: relative;
+    }
+    .mode-btn {
+      border: none;
+      background: transparent;
+      padding: 10px 24px;
+      border-radius: 26px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+      transition: color 0.3s var(--spring-ease);
+    }
+    .mode-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+    /* Sliding pill highlight */
+    .segmented-pill-highlight {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: calc(50% - 4px);
+      height: calc(100% - 8px);
+      background: var(--surface-card);
+      border-radius: 26px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      z-index: 1;
+      transition: transform 0.35s var(--spring-ease);
+    }
+    .segmented-pill-highlight.slide-right {
+      transform: translateX(100%);
+    }
+
+    .mode-btn.active.minimalist-active { color: var(--brand-emerald); }
+    .mode-btn.active.detailed-active { color: var(--agent-purple); }
+
+    .mode-desc-badge {
+      margin-top: 12px;
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.3s ease;
+    }
+    .mode-desc-badge.minimalist {
+      background: var(--brand-emerald-light);
+      color: var(--brand-emerald);
+      border: 1px solid #c2d8bf;
+    }
+    .mode-desc-badge.detailed {
+      background: var(--agent-purple-light);
+      color: var(--agent-purple);
+      border: 1px solid #d4ccf7;
+    }
+    .mode-desc-badge svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+    /* App Title Header */
+    .app-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .app-header h1 {
+      font-family: var(--font-serif);
+      font-size: 34px;
+      color: var(--ink-primary);
+      letter-spacing: -0.02em;
+    }
+    .app-header p {
+      color: var(--ink-secondary);
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    /* 4-Step Stepper Nav */
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 28px;
+      box-shadow: 0 6px 22px rgba(50, 45, 35, 0.04);
+    }
+    .step-tab {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-right: 1px solid var(--border-subtle);
+      color: var(--ink-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.3s var(--spring-ease), color 0.3s var(--spring-ease);
+    }
+    .step-tab:last-child { border-right: none; }
+    .step-tab.active {
+      color: var(--brand-emerald);
+      background: #f4f8f1;
+      font-weight: 600;
+    }
+    .step-tab.completed { color: #225a43; }
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e6e9e1;
+      color: #6a746c;
+      transition: all 0.3s var(--spring-ease);
+    }
+    .step-tab.active .step-circle {
+      background: var(--brand-emerald);
+      color: #fff;
+      box-shadow: 0 0 0 4px var(--brand-emerald-light);
+    }
+    .step-tab.completed .step-circle {
+      background: #2b7054;
+      color: #fff;
+    }
+
+    /* SVG Checkmark draw animation (PathLength) */
+    @keyframes drawCheckPath {
+      0% { stroke-dashoffset: 24; opacity: 0; }
+      50% { opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 1; }
+    }
+    .path-drawn-check {
+      width: 15px;
+      height: 15px;
+      stroke: #fff;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 24;
+      stroke-dashoffset: 0;
+      animation: drawCheckPath 0.4s var(--spring-ease) forwards;
+    }
+
+    .step-info strong { display: block; font-size: 14px; }
+    .step-info small { font-size: 11px; color: var(--ink-secondary); }
+
+    /* Card Panels */
+    .card-panel {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 38px 40px;
+      box-shadow: 0 14px 42px rgba(45, 40, 30, 0.05);
+      margin-bottom: 24px;
+      animation: fadeIn 0.35s var(--spring-ease) forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--brand-emerald);
+      background: var(--brand-emerald-light);
+      padding: 4px 12px;
+      border-radius: 14px;
+      margin-bottom: 12px;
+    }
+    .card-kicker.purple {
+      color: var(--agent-purple);
+      background: var(--agent-purple-light);
+    }
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      color: var(--ink-primary);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      color: var(--ink-secondary);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Dropzone */
+    .dropzone-area {
+      border: 2px dashed #b7c6b5;
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      background: #fbfdfa;
+      cursor: pointer;
+      transition: all 0.3s var(--spring-ease);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dropzone-area:hover {
+      border-color: var(--brand-emerald);
+      background: #f4f8ef;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--brand-emerald-glow);
+    }
+    .dropzone-area svg.icon-large {
+      width: 48px;
+      height: 48px;
+      stroke: var(--brand-emerald);
+      stroke-width: 1.8;
+      fill: none;
+      margin-bottom: 12px;
+      transition: transform 0.3s var(--spring-ease);
+    }
+    .dropzone-area:hover svg.icon-large {
+      transform: scale(1.1) translateY(-2px);
+    }
+    .dropzone-area strong { font-size: 17px; margin-bottom: 4px; }
+    .dropzone-area small { color: var(--ink-secondary); font-size: 13px; }
+    .demo-fill-btn {
+      margin-top: 14px;
+      background: #eef3ea;
+      color: var(--brand-emerald);
+      border: 1px solid #c0d3bd;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .demo-fill-btn:hover { background: var(--brand-emerald); color: #fff; }
+
+    /* File Ready Box */
+    .file-ready-box {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: #f2f7ed;
+      border: 1px solid #c7d8c4;
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-top: 18px;
+      animation: fadeIn 0.3s var(--spring-ease);
+    }
+    .file-ready-info { display: flex; align-items: center; gap: 14px; }
+    .file-ready-info svg { width: 32px; height: 32px; stroke: var(--brand-emerald); stroke-width: 1.8; fill: none; }
+    .file-ready-info strong { font-size: 15px; color: var(--ink-primary); }
+    .file-ready-info small { color: var(--ink-secondary); font-size: 12px; display: block; }
+
+    /* Target Selection */
+    .target-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .target-card {
+      border: 2px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 22px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.25s var(--spring-ease);
+    }
+    .target-card:hover {
+      border-color: #a6bda6;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+    .target-card.selected {
+      border-color: var(--brand-emerald);
+      background: #f7faf4;
+      box-shadow: 0 6px 20px var(--brand-emerald-glow);
+    }
+    .target-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .target-header input[type="radio"] { accent-color: var(--brand-emerald); width: 18px; height: 18px; }
+    .target-header h3 { font-size: 16px; color: var(--ink-primary); }
+    .target-card p { font-size: 13px; color: var(--ink-secondary); line-height: 1.5; }
+
+    .clean-select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #bccab9;
+      background: #fff;
+      font-size: 14px;
+      color: var(--ink-primary);
+      margin-top: 14px;
+      outline: none;
+    }
+    .clean-select:focus {
+      border-color: var(--brand-emerald);
+      box-shadow: 0 0 0 3px var(--brand-emerald-light);
+    }
+
+    /* Actions */
+    .action-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 32px;
+    }
+    .btn-hero {
+      background: var(--brand-emerald);
+      color: #fff;
+      border: none;
+      border-radius: 36px;
+      padding: 16px 52px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 26px var(--brand-emerald-glow);
+      transition: all 0.3s var(--spring-ease);
+    }
+    .btn-hero svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+    .btn-hero:hover:not(:disabled) {
+      background: var(--brand-emerald-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 34px rgba(28, 93, 67, 0.38);
+    }
+    .btn-hero:active:not(:disabled) { transform: scale(0.98); }
+    .btn-hero:disabled {
+      background: #a2b0a3;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* Progress Stage */
+    .progress-panel {
+      text-align: center;
+      padding: 52px 36px;
+    }
+    .progress-bar-container {
+      width: 100%;
+      max-width: 540px;
+      height: 10px;
+      background: #e3e9e0;
+      border-radius: 10px;
+      margin: 26px auto 36px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #1c5d43, #3ea278);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.45s var(--spring-ease);
+    }
+    .phase-list {
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+    .phase-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: #f8faf6;
+      border: 1px solid #e3eade;
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--ink-muted);
+      transition: all 0.3s var(--spring-ease);
+    }
+    .phase-item.current {
+      background: #ffffff;
+      border-color: var(--brand-emerald);
+      color: var(--brand-emerald);
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(28, 93, 67, 0.08);
+    }
+    .phase-item.done {
+      background: #f2f7ee;
+      border-color: #b9d2b5;
+      color: #1f573d;
+    }
+    .phase-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      background: #dde5db;
+      color: #5c685f;
+      flex-shrink: 0;
+    }
+    .phase-item.done .phase-badge {
+      background: #2b7054;
+      color: #fff;
+    }
+    .phase-item.current .phase-badge {
+      background: var(--brand-emerald);
+      color: #fff;
+      animation: pulseGlow 1.5s infinite;
+    }
+    @keyframes pulseGlow {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(28,93,67,0.4); }
+      70% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(28,93,67,0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(28,93,67,0); }
+    }
+
+    /* Export Stage */
+    .export-panel {
+      text-align: center;
+      padding: 52px 36px;
+    }
+    .celebrate-vector-badge {
+      width: 68px;
+      height: 68px;
+      color: var(--brand-emerald);
+      margin: 0 auto 16px;
+      display: block;
+      stroke-width: 2;
+    }
+    .download-highlight-box {
+      background: linear-gradient(#f4f8f1, #f4f8f1) padding-box,
+                  linear-gradient(135deg, #1c5d43 0%, #3da277 50%, #b0dfc2 100%) border-box;
+      border: 2px solid transparent;
+      border-radius: 22px;
+      padding: 38px 26px;
+      max-width: 580px;
+      margin: 28px auto 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+      box-shadow: 0 16px 40px rgba(28, 93, 67, 0.08);
+    }
+    .download-highlight-box::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 28px;
+      background: radial-gradient(ellipse at center, rgba(28, 93, 67, 0.12) 0%, transparent 70%);
+      filter: blur(18px);
+      z-index: -1;
+      pointer-events: none;
+    }
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-width: 600px;
+      margin: 0 auto 36px;
+      text-align: left;
+    }
+    .highlight-cell {
+      background: #fff;
+      border: 1px solid #dae1d7;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s var(--spring-ease);
+    }
+    .highlight-cell:hover {
+      border-color: #a8bfa8;
+      transform: translateY(-1px);
+    }
+    .highlight-cell svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--brand-emerald);
+      stroke-width: 2.2;
+      fill: none;
+      flex-shrink: 0;
+    }
+
+    /* Motion SVG Radial Gauge Progress Ring */
+    .radial-gauge-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 16px auto 30px;
+    }
+    .radial-gauge-wrap {
+      position: relative;
+      width: 148px;
+      height: 148px;
+      display: grid;
+      place-items: center;
+    }
+    .radial-gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+    .gauge-track {
+      fill: none;
+      stroke: #e3ede1;
+      stroke-width: 9;
+    }
+    .gauge-fill {
+      fill: none;
+      stroke: var(--brand-emerald);
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 377;
+      stroke-dashoffset: 340;
+      transition: stroke-dashoffset 0.5s var(--spring-ease);
+    }
+    .gauge-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-pct {
+      font-family: var(--font-serif);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      line-height: 1;
+    }
+    .gauge-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--brand-emerald);
+      font-weight: 600;
+      margin-top: 5px;
+    }
+    .gauge-tag .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brand-emerald);
+      animation: pulseDot 1.4s infinite;
+    }
+    @keyframes pulseDot {
+      0% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.8); opacity: 0.6; }
+    }
+
+    /* Compliance Metric Grid */
+    .compliance-metric-section {
+      max-width: 660px;
+      margin: 28px auto 0;
+      text-align: left;
+    }
+    .compliance-metric-section h3 {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      color: var(--ink-primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .metric-chart-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .metric-chart-card {
+      background: #fbfdfa;
+      border: 1px solid #dfebd9;
+      border-radius: 12px;
+      padding: 16px 12px;
+      text-align: center;
+      transition: all 0.25s var(--spring-ease);
+    }
+    .metric-chart-card:hover {
+      transform: translateY(-2px);
+      border-color: #acc7a6;
+      box-shadow: 0 6px 18px rgba(28, 93, 67, 0.06);
+    }
+    .metric-chart-score {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--brand-emerald);
+    }
+    .metric-chart-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-primary);
+      margin-top: 6px;
+    }
+    .metric-chart-desc {
+      font-size: 11px;
+      color: var(--ink-muted);
+      margin-top: 3px;
+    }
+    .metric-bar-track {
+      width: 100%;
+      height: 4px;
+      background: #e2ede0;
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      background: var(--brand-emerald);
+      border-radius: 4px;
+    }
+
+    /* Interactive Document Preview Mockup */
+    .visual-preview-section {
+      margin: 36px auto 0;
+      max-width: 660px;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 30px rgba(45, 40, 30, 0.04);
+      text-align: left;
+      perspective: 1200px;
+    }
+    .visual-preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .visual-preview-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .visual-preview-title h3 {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      color: var(--ink-primary);
+      margin: 0;
+    }
+    .visual-preview-title svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--brand-emerald);
+      stroke-width: 2;
+      fill: none;
+    }
+    .visual-preview-tabs {
+      display: inline-flex;
+      background: #ede9df;
+      padding: 3px;
+      border-radius: 20px;
+      border: 1px solid #d9d3c5;
+    }
+    .preview-tab-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      transition: all 0.25s var(--spring-ease);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .preview-tab-btn.active {
+      background: #fff;
+      color: var(--brand-emerald);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .mockup-paper-sheet {
+      background: #fffdfc;
+      border: 1px solid #e1ded6;
+      border-radius: 10px;
+      padding: 28px 32px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+      font-family: var(--font-serif);
+      position: relative;
+      min-height: 240px;
+      transform: rotateX(var(--sheet-tilt-x, 0deg)) rotateY(var(--sheet-tilt-y, 0deg));
+      transition: transform 0.25s var(--spring-ease), box-shadow 0.3s var(--spring-ease);
+    }
+    .mockup-paper-sheet:hover {
+      box-shadow: 0 16px 36px rgba(45, 40, 30, 0.07);
+    }
+    .mockup-paper-sheet.is-before {
+      border-left: 5px solid #d9534f;
+      background: #fffbfa;
+    }
+    .mockup-paper-sheet.is-after {
+      border-left: 5px solid var(--brand-emerald);
+      background: #fbfdfa;
+    }
+    .mockup-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .mockup-status-badge.before-badge {
+      background: #fdeeee;
+      color: #c9302c;
+      border: 1px solid #f2c7c7;
+    }
+    .mockup-status-badge.after-badge {
+      background: var(--brand-emerald-light);
+      color: var(--brand-emerald);
+      border: 1px solid #cce2cb;
+    }
+    .mockup-heading-1 {
+      margin-bottom: 12px;
+      font-weight: bold;
+      color: #111;
+    }
+    .mockup-paper-sheet.is-before .mockup-heading-1 {
+      font-size: 20px;
+      text-align: left;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+    .mockup-paper-sheet.is-after .mockup-heading-1 {
+      font-size: 20px;
+      text-align: center;
+      font-family: "SimHei", var(--font-serif);
+      margin: 16px 0 14px;
+    }
+    .mockup-body-text {
+      color: #2b2b2b;
+      line-height: 1.6;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+    .mockup-paper-sheet.is-before .mockup-body-text {
+      text-indent: 0;
+      line-height: 1.2;
+      font-family: sans-serif;
+      color: #555;
+    }
+    .mockup-paper-sheet.is-after .mockup-body-text {
+      text-indent: 2em;
+      line-height: 1.65;
+      font-family: var(--font-serif);
+      color: #1a1a1a;
+    }
+    .mockup-figure-box {
+      margin: 16px auto;
+      text-align: center;
+    }
+    .mockup-figure-rect {
+      width: 70%;
+      height: 54px;
+      background: #eef2eb;
+      border: 1px dashed #b9cbba;
+      border-radius: 6px;
+      margin: 0 auto 8px;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: #637765;
+    }
+    .mockup-caption-text {
+      font-size: 12px;
+      color: #555;
+    }
+    .mockup-paper-sheet.is-before .mockup-caption-text {
+      text-align: left;
+      color: #888;
+    }
+    .mockup-paper-sheet.is-after .mockup-caption-text {
+      text-align: center;
+      font-weight: 600;
+      color: #1d402d;
+    }
+
+    /* Detailed Mode Specific Cards */
+    .agent-card-banner {
+      background: linear-gradient(135deg, #f8f6ff 0%, #edf3ff 100%);
+      border: 1.5px solid #d4ccf7;
+      border-radius: 18px;
+      padding: 26px 30px;
+      margin-bottom: 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 8px 24px rgba(91, 74, 166, 0.06);
+    }
+    .agent-banner-text h3 {
+      font-size: 18px;
+      color: var(--agent-purple);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .agent-banner-text p {
+      font-size: 13px;
+      color: #555f6d;
+    }
+
+    .deep-features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+    .feature-box {
+      background: #fff;
+      border: 1px solid #dcd7ea;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 13px;
+      transition: all 0.25s var(--spring-ease);
+    }
+    .feature-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    }
+    .feature-box strong {
+      display: block;
+      color: var(--agent-purple);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    .feature-box small {
+      color: var(--ink-secondary);
+      line-height: 1.5;
+      display: block;
+    }
+
+    /* Diff View Table */
+    .diff-table-container {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 26px;
+    }
+    .diff-table-head {
+      background: #f6f8f5;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+    }
+    .diff-row-item {
+      padding: 16px 20px;
+      border-bottom: 1px solid #edf1eb;
+      display: grid;
+      grid-template-columns: 140px 1fr 1fr 90px;
+      gap: 16px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .diff-row-item:last-child { border-bottom: none; }
+    .diff-tag {
+      font-size: 11px;
+      background: #eef3eb;
+      color: var(--brand-emerald);
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      font-weight: 600;
+    }
+    .diff-before { color: #88938b; }
+    .diff-after { color: var(--ink-primary); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+  <!-- Confetti Canvas for celebration -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Top bar with demo quick jump controls -->
+  <div class="prototype-bar">
+    <div><strong>Paper Setting v1.1</strong> 双视图交互系统 (Motion-Inspired)</div>
+    <div class="quick-links">
+      <span>模式快速切换:</span>
+      <button type="button" onclick="setAppMode('minimalist')">🌿 极简排版 (默认)</button>
+      <button type="button" onclick="setAppMode('detailed')">⚡ 详细与 Agent 智排</button>
+      <span style="margin:0 4px;color:#456;">|</span>
+      <span>极简流程步骤:</span>
+      <button type="button" onclick="jumpToStep(1)">步骤 1 (上传)</button>
+      <button type="button" onclick="jumpToStep(2)">步骤 2 (目标)</button>
+      <button type="button" onclick="startTypesettingSimulation()">步骤 3 (排版)</button>
+      <button type="button" onclick="jumpToStep(4)">步骤 4 (交付)</button>
+    </div>
+  </div>
+
+  <div class="main-container">
+
+    <!-- Mode Segmented Switcher with Sliding Indicator Pill -->
+    <div class="mode-switch-wrapper">
+      <div class="mode-segmented-control" role="tablist" aria-label="排版视图模式选择">
+        <div class="segmented-pill-highlight" id="segmentedPill"></div>
+        <button
+          type="button"
+          class="mode-btn active minimalist-active"
+          id="btnModeMinimalist"
+          onclick="setAppMode('minimalist')"
+        >
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="m9 12 2 2 4-4" /></svg>
+          <span>极简排版 (默认)</span>
+        </button>
+        <button
+          type="button"
+          class="mode-btn"
+          id="btnModeDetailed"
+          onclick="setAppMode('detailed')"
+        >
+          <svg viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+          <span>详细与 Agent 智排</span>
+        </button>
+      </div>
+
+      <!-- Mode explanation badge -->
+      <div class="mode-desc-badge minimalist" id="modeDescBadge">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+        <span id="modeDescText">纯本地离线纯算 · 零网络请求 · 零 Agent 调用 · 绝对保障论文隐私 (0 Token)</span>
+      </div>
+    </div>
+
+    <!-- App Title Header -->
+    <header class="app-header">
+      <h1 id="appHeaderTitle">论文一键智能排版</h1>
+      <p id="appHeaderSubtitle">原稿安全只读 · 规则秒级确定性编译 · 4 步极简闭环</p>
+    </header>
+
+    <!-- 4-Step Stepper Navigation -->
+    <nav class="stepper" id="stepperNav" aria-label="排版流程">
+      <div class="step-tab active" id="tab-step-1" onclick="jumpToStep(1)">
+        <div class="step-circle" id="circle-step-1">1</div>
+        <div class="step-info">
+          <strong>上传文稿</strong>
+          <small>Word 论文初稿</small>
+        </div>
+      </div>
+      <div class="step-tab" id="tab-step-2" onclick="jumpToStep(2)">
+        <div class="step-circle" id="circle-step-2">2</div>
+        <div class="step-info">
+          <strong>目标规范</strong>
+          <small>内置标准或模板</small>
+        </div>
+      </div>
+      <div class="step-tab" id="tab-step-3">
+        <div class="step-circle" id="circle-step-3">3</div>
+        <div class="step-info">
+          <strong id="step3Title">智能排版</strong>
+          <small id="step3Subtitle">本地规则引擎</small>
+        </div>
+      </div>
+      <div class="step-tab" id="tab-step-4" onclick="jumpToStep(4)">
+        <div class="step-circle" id="circle-step-4">4</div>
+        <div class="step-info">
+          <strong>导出成品</strong>
+          <small>下载标准 DOCX</small>
+        </div>
+      </div>
+    </nav>
+
+    <!-- =========================================================================
+         VIEW 1: MINIMALIST WORKFLOW (DEFAULT)
+         ========================================================================= -->
+    <div id="viewMinimalistContainer">
+      <!-- Step 1: Upload -->
+      <section class="card-panel" id="panel-min-step-1">
+        <span class="card-kicker">步骤 01 · 本地安全沙箱</span>
+        <h2 class="card-title">上传您的论文文稿</h2>
+        <p class="card-desc">原文件将在单机本地隔离沙箱中处理，绝不上云、绝不调用外网，永不覆盖您的原始文件。</p>
+
+        <div class="dropzone-area" id="minDropzone" onclick="fillDemoFile()">
+          <svg class="icon-large" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></svg>
+          <strong>点击选择论文文件，或将文件拖拽至此</strong>
+          <small>支持 Word DOC / DOCX 格式 · 最大 50 MiB · 离线安全</small>
+          <button type="button" class="demo-fill-btn" onclick="event.stopPropagation(); fillDemoFile()">
+            ✨ 填入演示样本：《基于深度学习的学术排版优化.docx》
+          </button>
+        </div>
+
+        <div class="file-ready-box" id="minFileReadyBox">
+          <div class="file-ready-info">
+            <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
+            <div>
+              <strong>基于深度学习的学术排版优化.docx</strong>
+              <small>2.4 MiB · 结构完整性通过 · 已建立单机只读保护副本</small>
+            </div>
+          </div>
+          <div>
+            <button type="button" style="padding:7px 16px;border:1px solid #bcc9ba;border-radius:20px;background:#fff;cursor:pointer;font-size:13px;" onclick="clearFile()">
+              更换文件
+            </button>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="btn-hero" id="btnMinStep1Next" disabled onclick="jumpToStep(2)">
+            <span>下一步：设定排版标准</span>
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 2: Target Selection -->
+      <section class="card-panel" id="panel-min-step-2" style="display:none;">
+        <span class="card-kicker">步骤 02 · 规则映射</span>
+        <h2 class="card-title">选择目标规范或学校模板</h2>
+        <p class="card-desc">无需理解复杂的 JSON 规则包代码，直接选择您需要对齐的标准。</p>
+
+        <div class="target-grid">
+          <div class="target-card selected" id="minOptPreset" onclick="selectMinTarget('preset')">
+            <div class="target-header">
+              <input type="radio" name="minTarget" checked id="minRadioPreset" />
+              <h3>选用权威规范标准 (推荐)</h3>
+            </div>
+            <p>内置标准学位论文规范，自动对齐字体、字号、行距、页边距与各级标题缩进。</p>
+            <select class="clean-select" id="minRulepackSelect">
+              <option value="zh-thesis-default">中文学位论文通用规范 (GB/T 7714 通用标准)</option>
+              <option value="zh-thesis-deep">中文学位论文·深层自动化（含公式与图表标号）</option>
+              <option value="ucas-humanities">中国科学院大学人文社科论文排版标准</option>
+            </select>
+          </div>
+
+          <div class="target-card" id="minOptTemplate" onclick="selectMinTarget('template')">
+            <div class="target-header">
+              <input type="radio" name="minTarget" id="minRadioTemplate" />
+              <h3>上传学校 Word 模板</h3>
+            </div>
+            <p>学校官方提供的带封面模板，系统将正文精准注入模板中并保留模板格式。</p>
+            <div style="border:1.5px dashed #bccab9;border-radius:10px;padding:12px;text-align:center;margin-top:14px;background:#fff;">
+              <small style="color:var(--brand-emerald);cursor:pointer;" onclick="fillMinTemplate()">📁 选择学校官方模板.docx (点击载入演示模板)</small>
+              <div id="minTemplateBadge" style="display:none;font-weight:bold;margin-top:6px;font-size:12px;color:var(--brand-emerald);">
+                已就绪：清华大学研究生论文模板.docx
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button type="button" class="btn-hero" onclick="startTypesettingSimulation()">
+            <svg viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+            <span>开始一键极简排版 (纯本地引擎)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Step 3: Minimalist Progress -->
+      <section class="card-panel progress-panel" id="panel-min-step-3" style="display:none;">
+        <span class="card-kicker">步骤 03 · 极速本地编译</span>
+        <h2 class="card-title">本地排版引擎正在处理…</h2>
+        <p class="card-desc">纯本地 C/Python AST 确定性代码高速运算，未产生任何外网请求，0 Token 消耗。</p>
+
+        <!-- Motion SVG Radial Gauge Progress Ring -->
+        <div class="radial-gauge-container">
+          <div class="radial-gauge-wrap">
+            <svg class="radial-gauge-svg" viewBox="0 0 148 148">
+              <circle class="gauge-track" cx="74" cy="74" r="60" />
+              <circle
+                class="gauge-fill"
+                id="minRadialGaugeFill"
+                cx="74"
+                cy="74"
+                r="60"
+              />
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-pct" id="minGaugePct">15%</span>
+              <span class="gauge-tag">
+                <span class="live-dot"></span>
+                <span>本地离线纯算中</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" id="minProgressBar"></div>
+        </div>
+
+        <div class="phase-list">
+          <div class="phase-item current" id="min-phase-1">
+            <span class="phase-badge" id="badge-icon-1">1</span>
+            <span>解析文档语法树（提取 18 个标题、142 个正文段落、12 个图表）</span>
+          </div>
+          <div class="phase-item" id="min-phase-2">
+            <span class="phase-badge" id="badge-icon-2">2</span>
+            <span>计算排版规范基准（宋体/Times、小四字号、1.25倍行距、页边距）</span>
+          </div>
+          <div class="phase-item" id="min-phase-3">
+            <span class="phase-badge" id="badge-icon-3">3</span>
+            <span>无损样式注入与目录重构（应用标题样式、生成目录域、更新页码）</span>
+          </div>
+          <div class="phase-item" id="min-phase-4">
+            <span class="phase-badge" id="badge-icon-4">4</span>
+            <span>完整性复核（公式白名单无损、字数无差异、自动通过）</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Minimalist Export -->
+      <section class="card-panel export-panel" id="panel-min-step-4" style="display:none;">
+        <svg class="celebrate-vector-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <h2 class="card-title">论文排版已顺利完成！</h2>
+        <p class="card-desc">全篇格式已对齐规范，公式与图表 100% 原样保留，未经过任何外部大模型。</p>
+
+        <div class="download-highlight-box">
+          <button type="button" class="btn-hero" onclick="downloadMockDocx()">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+            <span>下载排版后论文 (.docx)</span>
+          </button>
+          <span style="font-size:13px;color:var(--ink-secondary);">
+            基于深度学习的学术排版优化_排版完成.docx (2.45 MiB · 标准 DOCX 副本)
+          </span>
+        </div>
+
+        <div class="highlights-grid">
+          <div class="highlight-cell">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
+            <span>统一了一至四级标题格式与间距</span>
+          </div>
+          <div class="highlight-cell">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
+            <span>正文规范为宋体小四、1.25倍行距与首行 2 字符缩进</span>
+          </div>
+          <div class="highlight-cell">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
+            <span>12 处图表题注与交叉引用对齐</span>
+          </div>
+          <div class="highlight-cell">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>
+            <span>4 处数学公式完整无损通过自验</span>
+          </div>
+        </div>
+
+        <!-- Motion Compliance Metric Grid -->
+        <div class="compliance-metric-section">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+            <span>排版质量与合规审计指标</span>
+          </h3>
+          <div class="metric-chart-grid">
+            <div class="metric-chart-card">
+              <div class="metric-chart-score">100%</div>
+              <div class="metric-chart-label">字体与行距</div>
+              <div class="metric-chart-desc">宋体 / Times / 1.25倍</div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:100%;"></div></div>
+            </div>
+            <div class="metric-chart-card">
+              <div class="metric-chart-score">100%</div>
+              <div class="metric-chart-label">标题树拓扑</div>
+              <div class="metric-chart-desc">一至四级无断层</div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:100%;"></div></div>
+            </div>
+            <div class="metric-chart-card">
+              <div class="metric-chart-score">100%</div>
+              <div class="metric-chart-label">题注与公式</div>
+              <div class="metric-chart-desc">按章连续编号</div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:100%;"></div></div>
+            </div>
+            <div class="metric-chart-card">
+              <div class="metric-chart-score">100%</div>
+              <div class="metric-chart-label">引注与文献</div>
+              <div class="metric-chart-desc">GB/T 7714 规范</div>
+              <div class="metric-bar-track"><div class="metric-bar-fill" style="width:100%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Document Preview Mockup (Before vs After) -->
+        <div class="visual-preview-section">
+          <div class="visual-preview-header">
+            <div class="visual-preview-title">
+              <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><line x1="10" y1="9" x2="8" y2="9" /></svg>
+              <h3>排版前后视觉效果对比看板</h3>
+            </div>
+            <div class="visual-preview-tabs">
+              <button
+                type="button"
+                id="btnProtoTabAfter"
+                class="preview-tab-btn active"
+                onclick="togglePrototypeDiff('after')"
+              >
+                ✨ 排版后 (标准规范)
+              </button>
+              <button
+                type="button"
+                id="btnProtoTabBefore"
+                class="preview-tab-btn"
+                onclick="togglePrototypeDiff('before')"
+              >
+                📄 排版前 (原始初稿)
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="mockup-paper-sheet is-after"
+            id="protoMockupSheet"
+            onmousemove="handleProtoSheetMouseMove(event)"
+            onmouseleave="handleProtoSheetMouseLeave(event)"
+          >
+            <div id="protoMockupAfterContent">
+              <div class="mockup-status-badge after-badge">
+                ✓ 已对齐标准学术规范 · 格式合规校验通过
+              </div>
+              <div class="mockup-heading-1">第 1 章 绪 论</div>
+              <p class="mockup-body-text">
+                近年来，随着人工智能与自然语言处理技术的快速普及，学术文献的排版与格式规范自动化迎来了崭新的范式转变。传统的论文排版受制于繁杂的底层数据结构，难以在完整保留作者正文语义的前提下进行高保真样式重构……
+              </p>
+              <div class="mockup-figure-box">
+                <div class="mockup-figure-rect">
+                  <span>[系统架构全景拓扑图]</span>
+                </div>
+                <div class="mockup-caption-text">
+                  图 1-1 本地离线排版引擎架构与 AST 映射拓扑
+                </div>
+              </div>
+              <p class="mockup-body-text">
+                如公式 (1-1) 所示，模型通过对语义树的自底向上遍历，实现了局部段落与全局页眉页码的严格一致性校验。
+              </p>
+            </div>
+            <div id="protoMockupBeforeContent" style="display:none;">
+              <div class="mockup-status-badge before-badge">
+                × 检测到 142 处不规范：字体混杂、缺少首行缩进、行距过挤、题注无编号
+              </div>
+              <div class="mockup-heading-1">1. 绪论</div>
+              <p class="mockup-body-text">
+                近年来，随着人工智能与自然语言处理技术的快速普及，学术文献的排版与格式规范自动化迎来了崭新的范式转变。传统的论文排版受制于繁杂的底层数据结构……
+              </p>
+              <div class="mockup-figure-box">
+                <div class="mockup-figure-rect">
+                  <span>[未命名架构截图.png]</span>
+                </div>
+                <div class="mockup-caption-text">
+                  图1: 架构图
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-row" style="margin-top: 32px;">
+          <button type="button" style="padding:11px 26px;border:1px solid var(--border-strong);border-radius:24px;background:#fff;cursor:pointer;font-weight:500;" onclick="jumpToStep(1)">
+            排版另一篇论文
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- =========================================================================
+         VIEW 2: DETAILED & AGENT-ASSISTED WORKFLOW (MANUAL SWITCH)
+         ========================================================================= -->
+    <div id="viewDetailedContainer" style="display:none;">
+      
+      <!-- Agent Superpower Banner -->
+      <div class="agent-card-banner">
+        <div class="agent-banner-text">
+          <h3>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+            <span>Agent 深度排版协同工作台</span>
+          </h3>
+          <p>
+            针对复杂论文格式攻坚：借助本地 Codex / LLM Agent 能力，处理深度交叉引用、引注转真脚注、非标规范文本自推导，并提供 AI 盲审质检报告。
+          </p>
+        </div>
+        <div>
+          <span style="background:var(--agent-purple);color:#fff;font-size:12px;padding:6px 14px;border-radius:20px;font-weight:600;">
+            Agent 已就绪
+          </span>
+        </div>
+      </div>
+
+      <!-- Feature 1: Deep Capabilities Overview -->
+      <div class="deep-features-grid">
+        <div class="feature-box">
+          <strong>📌 正文引注转真实脚注</strong>
+          <small>智能识别文内 `[1]` 或 `(Author, Year)`，转为 Word 物理脚注，并自动清理文末冗余参考文献。</small>
+        </div>
+        <div class="feature-box">
+          <strong>🔗 动态图表交叉引用修复</strong>
+          <small>扫描非标题注，绑定标准 `SEQ` 图表域与正文 `REF` / `PAGEREF` 引用，增删图表编号自动递增。</small>
+        </div>
+        <div class="feature-box">
+          <strong>📐 OMML 数学公式多级对齐</strong>
+          <small>公式居中与序号右对齐制表位规范化，保护矩阵和特殊符号不受破坏。</small>
+        </div>
+      </div>
+
+      <!-- Feature 2: Smart Rule Extractor Card -->
+      <section class="card-panel">
+        <span class="card-kicker purple">Agent 规范提炼助手</span>
+        <h2 class="card-title">从通知文件或文本自动提取规范</h2>
+        <p class="card-desc">学校只发了 PDF 通知或格式说明？粘贴文字，让 Agent 为您自动构建排版规则包。</p>
+
+        <textarea
+          style="width:100%;height:90px;padding:12px;border:1px solid #bccab9;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:12px;"
+          placeholder="例如粘贴学校格式要求：正文使用宋体小四号，1.5倍行距，一级标题黑体三号居中，页边距上2.5cm下2.5cm..."
+        >正文使用宋体，小四号，Times New Roman，1.25倍行距，首行缩进 2 字符；一级标题黑体三号居中；注释一律采用脚注，每页重新编号。</textarea>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;color:var(--ink-secondary);">
+            ✨ Agent 已解析出 6 项基础规则，预估与原稿契合度 98%
+          </span>
+          <button type="button" style="background:var(--agent-purple);color:#fff;border:none;padding:8px 18px;border-radius:18px;font-size:13px;cursor:pointer;font-weight:600;">
+            更新为当前排版基准
+          </button>
+        </div>
+      </section>
+
+      <!-- Feature 3: Detailed Diff Inspector & Overrides -->
+      <section class="card-panel">
+        <span class="card-kicker purple">可审计计划 · 段落级 Diff 检查</span>
+        <h2 class="card-title">格式修改前后详细比对</h2>
+        <p class="card-desc">在实际写入 DOCX 前，逐项核对每一条修改建议，支持手动勾选与个性化撤销。</p>
+
+        <div class="diff-table-container">
+          <div class="diff-table-head">
+            <span>修改目标</span>
+            <span>修改前 (原稿)</span>
+            <span>修改后 (Agent 建议)</span>
+            <span>操作</span>
+          </div>
+
+          <div class="diff-row-item">
+            <div><span class="diff-tag">一级标题</span> 4 处</div>
+            <div class="diff-before">宋体 14pt，单倍行距，无缩进</div>
+            <div class="diff-after">黑体 16pt (三号)，加粗，居中，段前12pt</div>
+            <div><label><input type="checkbox" checked /> 批准</label></div>
+          </div>
+
+          <div class="diff-row-item">
+            <div><span class="diff-tag">正文段落</span> 142 处</div>
+            <div class="diff-before">直接格式，无首行缩进，单倍行距</div>
+            <div class="diff-after">宋体/Times 小四，首行缩进 2 字符，1.25倍行距</div>
+            <div><label><input type="checkbox" checked /> 批准</label></div>
+          </div>
+
+          <div class="diff-row-item">
+            <div><span class="diff-tag" style="background:#f2ebfc;color:var(--agent-purple);">深度 OOXML</span> 引注转脚注</div>
+            <div class="diff-before">文内手动文本 `[1]`，文末文献表</div>
+            <div class="diff-after">转换为真正的 Word 物理脚注，每页重排</div>
+            <div><label><input type="checkbox" checked /> 批准</label></div>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button
+            type="button"
+            class="btn-hero"
+            style="background:var(--agent-purple);"
+            onclick="alert('已按照 Agent 深度规则执行受控排版并生成成果！')"
+          >
+            <svg viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z" /></svg>
+            <span>授权并执行深度 Agent 排版</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Feature 4: Codex Agent QA Panel -->
+      <section class="card-panel">
+        <span class="card-kicker purple">AI 二次盲审质检</span>
+        <h2 class="card-title">Agent 质量审查清单</h2>
+        <div style="background:#f9f8fe;border:1px solid #d9d2f5;border-radius:12px;padding:18px;margin-top:12px;font-size:13px;">
+          <strong>Agent 盲审判决：<span style="color:var(--agent-purple);">PASS WITH 1 SUGGESTION (通过并提示)</span></strong>
+          <div style="margin-top:10px;padding:10px 14px;background:#fff;border-radius:8px;border-left:4px solid #3b82f6;">
+            <b>[建议]</b> 参考文献第 14 条缺少出版年份，建议人工核对补全。
+          </div>
+          <div style="margin-top:8px;padding:10px 14px;background:#fff;border-radius:8px;border-left:4px solid var(--state-success);">
+            <b>[通过]</b> 4 处数学公式与图 2-1 交叉引用在重构后结构完好无损。
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    let appMode = 'minimalist'; // 'minimalist' or 'detailed'
+    let currentStep = 1;
+    let hasFile = true;
+
+    // Sliding indicator mode switcher
+    function setAppMode(mode) {
+      appMode = mode;
+      const btnMin = document.getElementById('btnModeMinimalist');
+      const btnDet = document.getElementById('btnModeDetailed');
+      const pill = document.getElementById('segmentedPill');
+      const badge = document.getElementById('modeDescBadge');
+      const descText = document.getElementById('modeDescText');
+      const minView = document.getElementById('viewMinimalistContainer');
+      const detView = document.getElementById('viewDetailedContainer');
+      const headerTitle = document.getElementById('appHeaderTitle');
+      const headerSubtitle = document.getElementById('appHeaderSubtitle');
+      const stepperNav = document.getElementById('stepperNav');
+
+      if (mode === 'minimalist') {
+        btnMin.className = 'mode-btn active minimalist-active';
+        btnDet.className = 'mode-btn';
+        pill.classList.remove('slide-right');
+        badge.className = 'mode-desc-badge minimalist';
+        descText.textContent = '纯本地离线纯算 · 零网络请求 · 零 Agent 调用 · 绝对保障论文隐私 (0 Token)';
+        minView.style.display = 'block';
+        detView.style.display = 'none';
+        stepperNav.style.display = 'grid';
+        headerTitle.textContent = '论文一键智能排版';
+        headerSubtitle.textContent = '原稿安全只读 · 规则秒级确定性编译 · 4 步极简闭环';
+      } else {
+        btnDet.className = 'mode-btn active detailed-active';
+        btnMin.className = 'mode-btn';
+        pill.classList.add('slide-right');
+        badge.className = 'mode-desc-badge detailed';
+        descText.textContent = '详细版排版模式 · 已接入 Agent 深度语义理解 · 攻坚复杂交叉引用与引注转脚注';
+        minView.style.display = 'none';
+        detView.style.display = 'block';
+        stepperNav.style.display = 'none';
+        headerTitle.textContent = '详细与 Agent 深度排版工作台';
+        headerSubtitle.textContent = '复杂学术格式攻坚 · 受控 OOXML 重构 · AI 二次盲审质检';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function jumpToStep(step) {
+      if (appMode !== 'minimalist') {
+        setAppMode('minimalist');
+      }
+      currentStep = step;
+      for (let i = 1; i <= 4; i++) {
+        const tab = document.getElementById(`tab-step-${i}`);
+        const circle = document.getElementById(`circle-step-${i}`);
+        const panel = document.getElementById(`panel-min-step-${i}`);
+
+        if (i < step) {
+          tab.className = 'step-tab completed';
+          circle.innerHTML = '<svg class="path-drawn-check" viewBox="0 0 16 16"><path d="m3.5 8.25 2.75 2.75 6.25-6.25" /></svg>';
+        } else if (i === step) {
+          tab.className = 'step-tab active';
+          circle.textContent = i;
+        } else {
+          tab.className = 'step-tab';
+          circle.textContent = i;
+        }
+
+        if (panel) {
+          panel.style.display = (i === step) ? 'block' : 'none';
+        }
+      }
+
+      if (step === 4) {
+        triggerConfettiCelebration();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fillDemoFile() {
+      hasFile = true;
+      document.getElementById('minDropzone').style.display = 'none';
+      document.getElementById('minFileReadyBox').style.display = 'flex';
+      document.getElementById('btnMinStep1Next').disabled = false;
+    }
+
+    function clearFile() {
+      hasFile = false;
+      document.getElementById('minDropzone').style.display = 'flex';
+      document.getElementById('minFileReadyBox').style.display = 'none';
+      document.getElementById('btnMinStep1Next').disabled = true;
+    }
+
+    function selectMinTarget(type) {
+      const optPreset = document.getElementById('minOptPreset');
+      const optTemplate = document.getElementById('minOptTemplate');
+      const radioPreset = document.getElementById('minRadioPreset');
+      const radioTemplate = document.getElementById('minRadioTemplate');
+
+      if (type === 'preset') {
+        optPreset.classList.add('selected');
+        optTemplate.classList.remove('selected');
+        radioPreset.checked = true;
+        radioTemplate.checked = false;
+      } else {
+        optTemplate.classList.add('selected');
+        optPreset.classList.remove('selected');
+        radioTemplate.checked = true;
+        radioPreset.checked = false;
+      }
+    }
+
+    function fillMinTemplate() {
+      document.getElementById('minTemplateBadge').style.display = 'block';
+    }
+
+    function startTypesettingSimulation() {
+      jumpToStep(3);
+      const bar = document.getElementById('minProgressBar');
+      const gaugeFill = document.getElementById('minRadialGaugeFill');
+      const gaugePct = document.getElementById('minGaugePct');
+
+      bar.style.width = '10%';
+      if (gaugeFill) gaugeFill.style.strokeDashoffset = '340';
+      if (gaugePct) gaugePct.textContent = '15%';
+
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`min-phase-${i}`).className = 'phase-item';
+        document.getElementById(`badge-icon-${i}`).textContent = i;
+      }
+      document.getElementById('min-phase-1').className = 'phase-item current';
+
+      setTimeout(() => {
+        bar.style.width = '35%';
+        if (gaugeFill) gaugeFill.style.strokeDashoffset = '245';
+        if (gaugePct) gaugePct.textContent = '35%';
+        document.getElementById('min-phase-1').className = 'phase-item done';
+        document.getElementById('badge-icon-1').innerHTML = '<svg class="path-drawn-check" viewBox="0 0 16 16"><path d="m3.5 8.25 2.75 2.75 6.25-6.25" /></svg>';
+        document.getElementById('min-phase-2').className = 'phase-item current';
+      }, 550);
+
+      setTimeout(() => {
+        bar.style.width = '70%';
+        if (gaugeFill) gaugeFill.style.strokeDashoffset = '113';
+        if (gaugePct) gaugePct.textContent = '70%';
+        document.getElementById('min-phase-2').className = 'phase-item done';
+        document.getElementById('badge-icon-2').innerHTML = '<svg class="path-drawn-check" viewBox="0 0 16 16"><path d="m3.5 8.25 2.75 2.75 6.25-6.25" /></svg>';
+        document.getElementById('min-phase-3').className = 'phase-item current';
+      }, 1100);
+
+      setTimeout(() => {
+        bar.style.width = '95%';
+        if (gaugeFill) gaugeFill.style.strokeDashoffset = '18';
+        if (gaugePct) gaugePct.textContent = '95%';
+        document.getElementById('min-phase-3').className = 'phase-item done';
+        document.getElementById('badge-icon-3').innerHTML = '<svg class="path-drawn-check" viewBox="0 0 16 16"><path d="m3.5 8.25 2.75 2.75 6.25-6.25" /></svg>';
+        document.getElementById('min-phase-4').className = 'phase-item current';
+      }, 1650);
+
+      setTimeout(() => {
+        bar.style.width = '100%';
+        if (gaugeFill) gaugeFill.style.strokeDashoffset = '0';
+        if (gaugePct) gaugePct.textContent = '100%';
+        document.getElementById('min-phase-4').className = 'phase-item done';
+        document.getElementById('badge-icon-4').innerHTML = '<svg class="path-drawn-check" viewBox="0 0 16 16"><path d="m3.5 8.25 2.75 2.75 6.25-6.25" /></svg>';
+      }, 2100);
+
+      setTimeout(() => {
+        jumpToStep(4);
+      }, 2500);
+    }
+
+    function togglePrototypeDiff(tab) {
+      const btnAfter = document.getElementById('btnProtoTabAfter');
+      const btnBefore = document.getElementById('btnProtoTabBefore');
+      const sheet = document.getElementById('protoMockupSheet');
+      const contentAfter = document.getElementById('protoMockupAfterContent');
+      const contentBefore = document.getElementById('protoMockupBeforeContent');
+
+      if (tab === 'after') {
+        btnAfter.className = 'preview-tab-btn active';
+        btnBefore.className = 'preview-tab-btn';
+        sheet.className = 'mockup-paper-sheet is-after';
+        contentAfter.style.display = 'block';
+        contentBefore.style.display = 'none';
+      } else {
+        btnBefore.className = 'preview-tab-btn active';
+        btnAfter.className = 'preview-tab-btn';
+        sheet.className = 'mockup-paper-sheet is-before';
+        contentAfter.style.display = 'none';
+        contentBefore.style.display = 'block';
+      }
+    }
+
+    function handleProtoSheetMouseMove(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      e.currentTarget.style.setProperty('--sheet-tilt-x', `${-y * 5}deg`);
+      e.currentTarget.style.setProperty('--sheet-tilt-y', `${x * 5}deg`);
+    }
+
+    function handleProtoSheetMouseLeave(e) {
+      e.currentTarget.style.setProperty('--sheet-tilt-x', '0deg');
+      e.currentTarget.style.setProperty('--sheet-tilt-y', '0deg');
+    }
+
+    function downloadMockDocx() {
+      alert('已在本地直接生成并下载：\n基于深度学习的学术排版优化_排版完成.docx\n\n（纯本地离线合成，未经过任何网络上传）');
+    }
+
+    // Confetti celebration particles (motion.dev confetti pattern)
+    function triggerConfettiCelebration() {
+      const canvas = document.getElementById('confettiCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const particles = [];
+      const colors = ['#1c5d43', '#2b7054', '#d4af37', '#f4f0e6', '#3ea278', '#5b4aa6'];
+      for (let i = 0; i < 55; i++) {
+        particles.push({
+          x: canvas.width / 2 + (Math.random() * 200 - 100),
+          y: canvas.height / 3 + (Math.random() * 100 - 50),
+          size: Math.random() * 7 + 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 8,
+          vy: Math.random() * -7 - 3,
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 6,
+          opacity: 1,
+        });
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let activeCount = 0;
+
+        for (const p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.22; // gravity
+          p.rotation += p.rotationSpeed;
+          p.opacity -= 0.008;
+
+          if (p.opacity > 0 && p.y < canvas.height) {
+            activeCount++;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate((p.rotation * Math.PI) / 180);
+            ctx.globalAlpha = Math.max(0, p.opacity);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+          }
+        }
+
+        if (activeCount > 0) {
+          requestAnimationFrame(render);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      render();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      fillDemoFile();
+    });
+  </script>
+</body>
+</html>

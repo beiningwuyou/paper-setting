@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paper-setting"
+version = "0.1.0"
+description = "Local-first, agent-friendly DOCX thesis formatting compiler"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+  "alembic>=1.14",
+  "fastapi>=0.115",
+  "lxml>=5.3",
+  "mcp>=1.12,<2",
+  "pydantic>=2.10",
+  "pydantic-settings>=2.7",
+  "python-docx>=1.1.2",
+  "python-multipart>=0.0.20",
+  "sqlalchemy>=2.0",
+  "structlog>=24.4",
+  "uvicorn[standard]>=0.34",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28",
+  "httpx2>=2.0",
+  "lxml-stubs>=0.5",
+  "mypy>=1.14",
+  "playwright>=1.55",
+  "pytest>=8.3",
+  "pytest-cov>=6.0",
+  "ruff>=0.9",
+]
+
+[project.scripts]
+paper-setting-api = "paper_setting_api.main:run"
+paper-setting-worker = "paper_setting_worker.main:run"
+paper-setting-mcp = "paper_setting_mcp.main:run"
+paper-setting-init = "paper_setting_runtime.cli:init_command"
+
+[tool.setuptools.packages.find]
+where = [
+  "packages/core/src",
+  "packages/runtime/src",
+  "packages/contracts",
+  "apps/api/src",
+  "apps/worker/src",
+  "apps/mcp/src",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --cov=paper_setting_core --cov=paper_setting_runtime --cov=paper_setting_api --cov-report=term-missing --cov-fail-under=80"
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+check_untyped_defs = true
+no_implicit_optional = true

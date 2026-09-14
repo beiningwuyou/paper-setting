@@ -1,0 +1,47 @@
+#!/bin/bash
+set -u
+
+APP_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+PYTHON="$APP_ROOT/.venv/bin/python"
+LOG_DIR="$APP_ROOT/data/logs"
+LOG_FILE="$LOG_DIR/论文排版台.log"
+URL="http://127.0.0.1:8765"
+
+mkdir -p "$LOG_DIR"
+
+if curl --silent --fail --max-time 1 "$URL/ready" >/dev/null 2>&1; then
+  open "$URL"
+  exit 0
+fi
+
+if [[ ! -x "$PYTHON" ]]; then
+  osascript -e 'display alert "论文排版台无法启动" message "克隆目录中的 Python 运行时缺失。请重新构建本地应用。" as critical'
+  exit 1
+fi
+
+export PATH="$APP_ROOT/runtime/codex-deps/bin/override:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+export PAPER_SETTING_ENV="production"
+export PAPER_SETTING_DATA_DIR="$APP_ROOT/data"
+export PAPER_SETTING_DATABASE_URL="sqlite:///$APP_ROOT/data/paper-setting.db"
+export PAPER_SETTING_WEB_DIST_DIR="$APP_ROOT/apps/web/dist"
+export PAPER_SETTING_OPEN_BROWSER="0"
+export PYTHONUNBUFFERED="1"
+
+cd "$APP_ROOT"
+nohup "$PYTHON" "$APP_ROOT/scripts/start_local.py" >>"$LOG_FILE" 2>&1 </dev/null &
+SERVER_PID=$!
+
+for _ in {1..60}; do
+  if curl --silent --fail --max-time 1 "$URL/ready" >/dev/null 2>&1; then
+    open "$URL"
+    exit 0
+  fi
+  if ! kill -0 "$SERVER_PID" 2>/dev/null; then
+    osascript -e 'display alert "论文排版台启动失败" message "请查看克隆目录 data/logs/论文排版台.log。" as critical'
+    exit 1
+  fi
+  sleep 0.5
+done
+
+osascript -e 'display alert "论文排版台启动超时" message "服务未在 30 秒内就绪，请查看克隆目录 data/logs/论文排版台.log。" as critical'
+exit 1

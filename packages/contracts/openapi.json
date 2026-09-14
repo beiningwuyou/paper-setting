@@ -1,0 +1,5001 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Paper Setting API",
+    "description": "Local-first DOCX thesis formatting compiler",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Ready",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs": {
+      "get": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "List Rule Packs",
+        "operationId": "list_rule_packs_api_v1_rule_packs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RulePackSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Rule Packs Api V1 Rule Packs Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs/capabilities": {
+      "get": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "Get Capabilities",
+        "operationId": "get_capabilities_api_v1_rule_packs_capabilities_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CapabilityDefinition"
+                  },
+                  "type": "array",
+                  "title": "Response Get Capabilities Api V1 Rule Packs Capabilities Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs/{rule_pack_id}": {
+      "get": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "Get Rule Pack",
+        "operationId": "get_rule_pack_api_v1_rule_packs__rule_pack_id__get",
+        "parameters": [
+          {
+            "name": "rule_pack_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rule Pack Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePack"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs/{rule_pack_id}/capabilities": {
+      "get": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "Get Rule Pack Capabilities",
+        "operationId": "get_rule_pack_capabilities_api_v1_rule_packs__rule_pack_id__capabilities_get",
+        "parameters": [
+          {
+            "name": "rule_pack_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Rule Pack Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePackCapabilityReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs/drafts": {
+      "post": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "Create Rule Pack Draft",
+        "operationId": "create_rule_pack_draft_api_v1_rule_packs_drafts_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_rule_pack_draft_api_v1_rule_packs_drafts_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePackDraft"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rule-packs/import": {
+      "post": {
+        "tags": [
+          "rule-packs"
+        ],
+        "summary": "Import Rule Pack",
+        "operationId": "import_rule_pack_api_v1_rule_packs_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_rule_pack_api_v1_rule_packs_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RulePackSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/inspect": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Inspect Template Document",
+        "operationId": "inspect_template_document_api_v1_templates_inspect_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_inspect_template_document_api_v1_templates_inspect_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateInspection"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/fill/preview": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Preview Template Fill",
+        "operationId": "preview_template_fill_api_v1_templates_fill_preview_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_preview_template_fill_api_v1_templates_fill_preview_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateFillPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/fill": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Generate Filled Template",
+        "operationId": "generate_filled_template_api_v1_templates_fill_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_generate_filled_template_api_v1_templates_fill_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Filled DOCX copy",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/structure/preview": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Preview Template Structure",
+        "operationId": "preview_template_structure_api_v1_templates_structure_preview_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_preview_template_structure_api_v1_templates_structure_preview_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateStructurePreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/structure": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Generate Template Structure",
+        "operationId": "generate_template_structure_api_v1_templates_structure_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_generate_template_structure_api_v1_templates_structure_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "DOCX copy with updated section structure",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/combined/preview": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Preview Template Combined",
+        "operationId": "preview_template_combined_api_v1_templates_combined_preview_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_preview_template_combined_api_v1_templates_combined_preview_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TemplateCombinedPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/templates/combined": {
+      "post": {
+        "tags": [
+          "templates"
+        ],
+        "summary": "Generate Template Combined",
+        "operationId": "generate_template_combined_api_v1_templates_combined_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_generate_template_combined_api_v1_templates_combined_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "DOCX copy with filled fields and updated section structure",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document": {}
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List Jobs",
+        "operationId": "list_jobs_api_v1_jobs_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobPage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Create Job",
+        "operationId": "create_job_api_v1_jobs_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_create_job_api_v1_jobs_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Job",
+        "operationId": "get_job_api_v1_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Delete Job",
+        "operationId": "delete_job_api_v1_jobs__job_id__delete",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/plan": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Plan",
+        "operationId": "get_plan_api_v1_jobs__job_id__plan_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatchPlan"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/template-plan": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Template Plan",
+        "operationId": "get_template_plan_api_v1_jobs__job_id__template_plan_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/TemplateCombinedPreview"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ManuscriptCompositionPreview"
+                    }
+                  ],
+                  "title": "Response Get Template Plan Api V1 Jobs  Job Id  Template Plan Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/inspection": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Inspection",
+        "operationId": "get_inspection_api_v1_jobs__job_id__inspection_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentInspection"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/approve": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Approve Job",
+        "operationId": "approve_job_api_v1_jobs__job_id__approve_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApprovalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Cancel Job",
+        "operationId": "cancel_job_api_v1_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/report": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Get Report",
+        "operationId": "get_report_api_v1_jobs__job_id__report_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/artifacts": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "List Artifacts",
+        "operationId": "list_artifacts_api_v1_jobs__job_id__artifacts_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ArtifactView"
+                  },
+                  "title": "Response List Artifacts Api V1 Jobs  Job Id  Artifacts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/artifacts/{artifact}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Download Artifact",
+        "operationId": "download_artifact_api_v1_jobs__job_id__artifacts__artifact__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "artifact",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Artifact"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/jobs/{job_id}/events": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Stream Events",
+        "operationId": "stream_events_api_v1_jobs__job_id__events_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          },
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdvancedWordFormat": {
+        "properties": {
+          "formula": {
+            "$ref": "#/components/schemas/FormulaFormat"
+          },
+          "citations": {
+            "$ref": "#/components/schemas/CitationFormat"
+          },
+          "toc": {
+            "$ref": "#/components/schemas/TocFormat"
+          },
+          "numbering": {
+            "$ref": "#/components/schemas/AutomaticNumberingFormat"
+          },
+          "cross_references": {
+            "$ref": "#/components/schemas/CrossReferenceFormat"
+          },
+          "notes": {
+            "$ref": "#/components/schemas/NotesFormat"
+          }
+        },
+        "type": "object",
+        "title": "AdvancedWordFormat"
+      },
+      "AdvancedWordInspection": {
+        "properties": {
+          "formula_count": {
+            "type": "integer",
+            "title": "Formula Count",
+            "default": 0
+          },
+          "formula_math_font": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Formula Math Font"
+          },
+          "formula_styles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formula Styles"
+          },
+          "citation_candidate_count": {
+            "type": "integer",
+            "title": "Citation Candidate Count",
+            "default": 0
+          },
+          "toc_instructions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Toc Instructions"
+          },
+          "update_fields_on_open": {
+            "type": "boolean",
+            "title": "Update Fields On Open",
+            "default": false
+          },
+          "numbered_role_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Numbered Role Counts"
+          },
+          "cross_reference_target_count": {
+            "type": "integer",
+            "title": "Cross Reference Target Count",
+            "default": 0
+          },
+          "cross_reference_marker_count": {
+            "type": "integer",
+            "title": "Cross Reference Marker Count",
+            "default": 0
+          },
+          "cross_reference_page_marker_count": {
+            "type": "integer",
+            "title": "Cross Reference Page Marker Count",
+            "default": 0
+          },
+          "cross_reference_existing_field_count": {
+            "type": "integer",
+            "title": "Cross Reference Existing Field Count",
+            "default": 0
+          },
+          "cross_reference_target_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Cross Reference Target Counts"
+          },
+          "sequence_numbered_role_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Sequence Numbered Role Counts"
+          },
+          "cross_reference_issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cross Reference Issues"
+          },
+          "footnote_count": {
+            "type": "integer",
+            "title": "Footnote Count",
+            "default": 0
+          },
+          "endnote_count": {
+            "type": "integer",
+            "title": "Endnote Count",
+            "default": 0
+          },
+          "inline_note_candidate_count": {
+            "type": "integer",
+            "title": "Inline Note Candidate Count",
+            "default": 0
+          },
+          "bibliography_entry_count": {
+            "type": "integer",
+            "title": "Bibliography Entry Count",
+            "default": 0
+          },
+          "footnote_numbering_restarts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Footnote Numbering Restarts"
+          },
+          "footnote_number_formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Footnote Number Formats"
+          }
+        },
+        "type": "object",
+        "title": "AdvancedWordInspection"
+      },
+      "ApprovalRequest": {
+        "properties": {
+          "plan_version": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Plan Version"
+          },
+          "approved_operation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Approved Operation Ids"
+          },
+          "rejected_operation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rejected Operation Ids"
+          },
+          "confirmed_manual_operation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Confirmed Manual Operation Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_version",
+          "approved_operation_ids"
+        ],
+        "title": "ApprovalRequest"
+      },
+      "ArtifactView": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "title": "Size Bytes"
+          },
+          "download_url": {
+            "type": "string",
+            "title": "Download Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "sha256",
+          "size_bytes",
+          "download_url"
+        ],
+        "title": "ArtifactView"
+      },
+      "AutomaticNumberingFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "headings": {
+            "type": "boolean",
+            "title": "Headings",
+            "default": true
+          },
+          "bibliography": {
+            "type": "boolean",
+            "title": "Bibliography",
+            "default": true
+          },
+          "captions": {
+            "type": "boolean",
+            "title": "Captions",
+            "default": true
+          },
+          "strip_existing_prefix": {
+            "type": "boolean",
+            "title": "Strip Existing Prefix",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "AutomaticNumberingFormat"
+      },
+      "Body_create_job_api_v1_jobs_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document"
+          },
+          "rule_pack_id": {
+            "type": "string",
+            "title": "Rule Pack Id"
+          },
+          "render_preview": {
+            "type": "boolean",
+            "title": "Render Preview",
+            "default": true
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "format",
+                  "template"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "template_document": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Document"
+          },
+          "formatting_mode": {
+            "type": "string",
+            "enum": [
+              "standardize",
+              "preserve"
+            ],
+            "title": "Formatting Mode",
+            "default": "standardize"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "rule_pack_id"
+        ],
+        "title": "Body_create_job_api_v1_jobs_post"
+      },
+      "Body_create_rule_pack_draft_api_v1_rule_packs_drafts_post": {
+        "properties": {
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text",
+            "description": "Pasted formatting guide text"
+          },
+          "document": {
+            "anyOf": [
+              {
+                "type": "string",
+                "contentMediaType": "application/octet-stream"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document",
+            "description": "UTF-8 TXT, Markdown, or DOCX formatting guide"
+          },
+          "rule_pack_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Pack Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "title": "Body_create_rule_pack_draft_api_v1_rule_packs_drafts_post"
+      },
+      "Body_generate_filled_template_api_v1_templates_fill_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to fill"
+          },
+          "values": {
+            "type": "string",
+            "title": "Values",
+            "description": "JSON object keyed by placeholder or control tag"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "values",
+          "source_sha256",
+          "plan_version"
+        ],
+        "title": "Body_generate_filled_template_api_v1_templates_fill_post"
+      },
+      "Body_generate_template_combined_api_v1_templates_combined_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to fill and restructure"
+          },
+          "values": {
+            "type": "string",
+            "title": "Values",
+            "description": "JSON object keyed by placeholder or control tag"
+          },
+          "configuration": {
+            "type": "string",
+            "title": "Configuration",
+            "description": "Section structure configuration JSON"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "values",
+          "configuration",
+          "source_sha256",
+          "plan_version"
+        ],
+        "title": "Body_generate_template_combined_api_v1_templates_combined_post"
+      },
+      "Body_generate_template_structure_api_v1_templates_structure_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to restructure"
+          },
+          "configuration": {
+            "type": "string",
+            "title": "Configuration",
+            "description": "Section structure configuration JSON"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "configuration",
+          "source_sha256",
+          "plan_version"
+        ],
+        "title": "Body_generate_template_structure_api_v1_templates_structure_post"
+      },
+      "Body_import_rule_pack_api_v1_rule_packs_import_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "JSON rule pack"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document"
+        ],
+        "title": "Body_import_rule_pack_api_v1_rule_packs_import_post"
+      },
+      "Body_inspect_template_document_api_v1_templates_inspect_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "School or journal DOCX template"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document"
+        ],
+        "title": "Body_inspect_template_document_api_v1_templates_inspect_post"
+      },
+      "Body_preview_template_combined_api_v1_templates_combined_preview_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to fill and restructure"
+          },
+          "values": {
+            "type": "string",
+            "title": "Values",
+            "description": "JSON object keyed by placeholder or control tag"
+          },
+          "configuration": {
+            "type": "string",
+            "title": "Configuration",
+            "description": "Section structure configuration JSON"
+          },
+          "source_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "values",
+          "configuration"
+        ],
+        "title": "Body_preview_template_combined_api_v1_templates_combined_preview_post"
+      },
+      "Body_preview_template_fill_api_v1_templates_fill_preview_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to fill"
+          },
+          "values": {
+            "type": "string",
+            "title": "Values",
+            "description": "JSON object keyed by placeholder or control tag"
+          },
+          "source_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "values"
+        ],
+        "title": "Body_preview_template_fill_api_v1_templates_fill_preview_post"
+      },
+      "Body_preview_template_structure_api_v1_templates_structure_preview_post": {
+        "properties": {
+          "document": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Document",
+            "description": "DOCX template to restructure"
+          },
+          "configuration": {
+            "type": "string",
+            "title": "Configuration",
+            "description": "Section structure configuration JSON"
+          },
+          "source_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document",
+          "configuration"
+        ],
+        "title": "Body_preview_template_structure_api_v1_templates_structure_preview_post"
+      },
+      "CapabilityDefinition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "document.page_layout",
+              "document.paragraph_formatting",
+              "document.character_formatting",
+              "word.formula_formatting",
+              "word.citation_normalization",
+              "word.toc",
+              "word.automatic_numbering",
+              "word.notes",
+              "template.inspect",
+              "template.fill",
+              "template.placeholders",
+              "sections.page_numbering",
+              "sections.headers_footers",
+              "word.cross_references",
+              "word.content_controls"
+            ],
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "supported",
+              "planned"
+            ],
+            "title": "Status"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "status",
+          "detail"
+        ],
+        "title": "CapabilityDefinition"
+      },
+      "CharacterFormat": {
+        "properties": {
+          "east_asia_font": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "East Asia Font"
+          },
+          "latin_font": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latin Font"
+          },
+          "size_pt": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Size Pt"
+          },
+          "color": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9A-Fa-f]{6}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Color"
+          },
+          "bold": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bold"
+          },
+          "italic": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Italic"
+          },
+          "underline": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Underline"
+          }
+        },
+        "type": "object",
+        "title": "CharacterFormat"
+      },
+      "CitationFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "style": {
+            "type": "string",
+            "const": "numeric_brackets",
+            "title": "Style",
+            "default": "numeric_brackets"
+          },
+          "sort_numbers": {
+            "type": "boolean",
+            "title": "Sort Numbers",
+            "default": true
+          },
+          "collapse_ranges": {
+            "type": "boolean",
+            "title": "Collapse Ranges",
+            "default": true
+          },
+          "range_separator": {
+            "type": "string",
+            "enum": [
+              "-",
+              "–"
+            ],
+            "title": "Range Separator",
+            "default": "–"
+          }
+        },
+        "type": "object",
+        "title": "CitationFormat"
+      },
+      "ContentControlCandidate": {
+        "properties": {
+          "tag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tag"
+          },
+          "alias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alias"
+          },
+          "part_name": {
+            "type": "string",
+            "title": "Part Name"
+          },
+          "story": {
+            "type": "string",
+            "title": "Story"
+          }
+        },
+        "type": "object",
+        "required": [
+          "part_name",
+          "story"
+        ],
+        "title": "ContentControlCandidate"
+      },
+      "CrossReferenceFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "hyperlinks": {
+            "type": "boolean",
+            "title": "Hyperlinks",
+            "default": true
+          },
+          "update_on_open": {
+            "type": "boolean",
+            "title": "Update On Open",
+            "default": true
+          },
+          "strip_existing_prefix": {
+            "type": "boolean",
+            "title": "Strip Existing Prefix",
+            "default": true
+          },
+          "figure_label": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Figure Label",
+            "default": "图"
+          },
+          "table_label": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Table Label",
+            "default": "表"
+          }
+        },
+        "type": "object",
+        "title": "CrossReferenceFormat"
+      },
+      "DocumentInspection": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/SectionFormatSnapshot"
+            },
+            "type": "array",
+            "title": "Sections"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/InspectionSummary"
+          },
+          "advanced": {
+            "$ref": "#/components/schemas/AdvancedWordInspection"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_sha256",
+          "source_filename",
+          "items",
+          "summary"
+        ],
+        "title": "DocumentInspection"
+      },
+      "DocumentItem": {
+        "properties": {
+          "stable_id": {
+            "type": "string",
+            "title": "Stable Id"
+          },
+          "story": {
+            "type": "string",
+            "enum": [
+              "body",
+              "table",
+              "header",
+              "footer"
+            ],
+            "title": "Story"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "section_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Index"
+          },
+          "order": {
+            "type": "integer",
+            "title": "Order"
+          },
+          "text_preview": {
+            "type": "string",
+            "title": "Text Preview"
+          },
+          "exact_text_hash": {
+            "type": "string",
+            "title": "Exact Text Hash"
+          },
+          "normalized_text_hash": {
+            "type": "string",
+            "title": "Normalized Text Hash"
+          },
+          "style_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Id"
+          },
+          "style_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Name"
+          },
+          "semantic_role": {
+            "type": "string",
+            "title": "Semantic Role"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "risks": {
+            "$ref": "#/components/schemas/RiskFlags"
+          },
+          "effective_format": {
+            "$ref": "#/components/schemas/EffectiveFormat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stable_id",
+          "story",
+          "path",
+          "order",
+          "text_preview",
+          "exact_text_hash",
+          "normalized_text_hash",
+          "semantic_role",
+          "confidence"
+        ],
+        "title": "DocumentItem"
+      },
+      "EffectiveFormat": {
+        "properties": {
+          "paragraph": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Paragraph"
+          },
+          "character": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Character"
+          }
+        },
+        "type": "object",
+        "title": "EffectiveFormat"
+      },
+      "FormattingPolicy": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "standardize",
+              "preserve"
+            ],
+            "title": "Mode",
+            "default": "standardize"
+          },
+          "baseline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RulePack"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "baseline_status": {
+            "type": "string",
+            "enum": [
+              "provisional",
+              "configured",
+              "not_used"
+            ],
+            "title": "Baseline Status",
+            "default": "not_used"
+          }
+        },
+        "type": "object",
+        "title": "FormattingPolicy"
+      },
+      "FormulaFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "math_font": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Math Font",
+            "default": "Cambria Math"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "preserve",
+              "plain",
+              "italic",
+              "bold",
+              "bold_italic"
+            ],
+            "title": "Style",
+            "default": "preserve"
+          }
+        },
+        "type": "object",
+        "title": "FormulaFormat"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HeaderFooterReference": {
+        "properties": {
+          "story": {
+            "type": "string",
+            "enum": [
+              "header",
+              "footer"
+            ],
+            "title": "Story"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "default",
+              "first",
+              "even"
+            ],
+            "title": "Kind"
+          },
+          "relationship_id": {
+            "type": "string",
+            "title": "Relationship Id"
+          },
+          "part_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Part Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "story",
+          "kind",
+          "relationship_id"
+        ],
+        "title": "HeaderFooterReference"
+      },
+      "InspectionSummary": {
+        "properties": {
+          "paragraphs": {
+            "type": "integer",
+            "title": "Paragraphs",
+            "default": 0
+          },
+          "table_paragraphs": {
+            "type": "integer",
+            "title": "Table Paragraphs",
+            "default": 0
+          },
+          "headers": {
+            "type": "integer",
+            "title": "Headers",
+            "default": 0
+          },
+          "footers": {
+            "type": "integer",
+            "title": "Footers",
+            "default": 0
+          },
+          "protected_items": {
+            "type": "integer",
+            "title": "Protected Items",
+            "default": 0
+          },
+          "role_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Role Counts"
+          },
+          "risk_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Risk Counts"
+          }
+        },
+        "type": "object",
+        "title": "InspectionSummary"
+      },
+      "JobPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/JobView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "JobPage"
+      },
+      "JobView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "progress": {
+            "type": "integer",
+            "title": "Progress"
+          },
+          "current_stage": {
+            "type": "string",
+            "title": "Current Stage"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "template_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Filename"
+          },
+          "template_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Template Sha256"
+          },
+          "rule_pack_id": {
+            "type": "string",
+            "title": "Rule Pack Id"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "format",
+              "template"
+            ],
+            "title": "Mode",
+            "default": "format"
+          },
+          "formatting_mode": {
+            "type": "string",
+            "enum": [
+              "standardize",
+              "preserve"
+            ],
+            "title": "Formatting Mode",
+            "default": "preserve"
+          },
+          "render_preview": {
+            "type": "boolean",
+            "title": "Render Preview"
+          },
+          "plan_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Version"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "error_detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Detail"
+          },
+          "failure_count": {
+            "type": "integer",
+            "title": "Failure Count"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "progress",
+          "current_stage",
+          "source_filename",
+          "source_sha256",
+          "rule_pack_id",
+          "render_preview",
+          "plan_version",
+          "error_code",
+          "error_detail",
+          "failure_count",
+          "max_attempts",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "JobView"
+      },
+      "ManuscriptBodyInjectionPreview": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "anchor_key": {
+            "type": "string",
+            "title": "Anchor Key"
+          },
+          "source_blocks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Source Blocks"
+          },
+          "paragraph_blocks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Paragraph Blocks"
+          },
+          "table_blocks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Table Blocks"
+          },
+          "image_relationships": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Image Relationships"
+          },
+          "formula_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Formula Count"
+          },
+          "stripped_section_properties": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Stripped Section Properties"
+          },
+          "excluded_front_matter_blocks": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Excluded Front Matter Blocks"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "anchor_key",
+          "source_blocks",
+          "paragraph_blocks",
+          "table_blocks",
+          "image_relationships",
+          "formula_count",
+          "stripped_section_properties",
+          "excluded_front_matter_blocks"
+        ],
+        "title": "ManuscriptBodyInjectionPreview"
+      },
+      "ManuscriptCompositionPreview": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "plan_kind": {
+            "type": "string",
+            "const": "manuscript_composition",
+            "title": "Plan Kind",
+            "default": "manuscript_composition"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "template_filename": {
+            "type": "string",
+            "title": "Template Filename"
+          },
+          "template_sha256": {
+            "type": "string",
+            "title": "Template Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          },
+          "mappings": {
+            "items": {
+              "$ref": "#/components/schemas/ManuscriptFieldMapping"
+            },
+            "type": "array",
+            "title": "Mappings"
+          },
+          "fill": {
+            "$ref": "#/components/schemas/TemplateFillPreview"
+          },
+          "body_injection": {
+            "$ref": "#/components/schemas/ManuscriptBodyInjectionPreview"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/TemplateStructurePreview"
+          },
+          "can_generate": {
+            "type": "boolean",
+            "title": "Can Generate"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "output_filename": {
+            "type": "string",
+            "title": "Output Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_filename",
+          "source_sha256",
+          "template_filename",
+          "template_sha256",
+          "plan_version",
+          "mappings",
+          "fill",
+          "body_injection",
+          "structure",
+          "can_generate",
+          "output_filename"
+        ],
+        "title": "ManuscriptCompositionPreview"
+      },
+      "ManuscriptFieldMapping": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "value_preview": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Value Preview"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "rule_pack",
+              "semantic_role",
+              "label",
+              "unmapped"
+            ],
+            "title": "Source"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 240,
+            "title": "Evidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "value_preview",
+          "source",
+          "confidence",
+          "evidence"
+        ],
+        "title": "ManuscriptFieldMapping"
+      },
+      "NotesFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "convert_inline_citations": {
+            "type": "boolean",
+            "title": "Convert Inline Citations",
+            "default": true
+          },
+          "convert_endnotes": {
+            "type": "boolean",
+            "title": "Convert Endnotes",
+            "default": true
+          },
+          "delete_bibliography": {
+            "type": "boolean",
+            "title": "Delete Bibliography",
+            "default": false
+          },
+          "numbering_restart": {
+            "type": "string",
+            "enum": [
+              "continuous",
+              "each_section",
+              "each_page"
+            ],
+            "title": "Numbering Restart",
+            "default": "continuous"
+          },
+          "number_format": {
+            "type": "string",
+            "enum": [
+              "decimal",
+              "decimal_enclosed_circle"
+            ],
+            "title": "Number Format",
+            "default": "decimal"
+          }
+        },
+        "type": "object",
+        "title": "NotesFormat"
+      },
+      "PageFormat": {
+        "properties": {
+          "width_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Width Mm",
+            "default": 210
+          },
+          "height_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Height Mm",
+            "default": 297
+          },
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "portrait",
+              "landscape"
+            ],
+            "title": "Orientation",
+            "default": "portrait"
+          },
+          "margin_top_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Margin Top Mm",
+            "default": 25.4
+          },
+          "margin_bottom_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Margin Bottom Mm",
+            "default": 25.4
+          },
+          "margin_left_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Margin Left Mm",
+            "default": 25.4
+          },
+          "margin_right_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Margin Right Mm",
+            "default": 25.4
+          },
+          "header_distance_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Header Distance Mm",
+            "default": 15
+          },
+          "footer_distance_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Footer Distance Mm",
+            "default": 17.5
+          }
+        },
+        "type": "object",
+        "title": "PageFormat"
+      },
+      "ParagraphFormat": {
+        "properties": {
+          "alignment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "center",
+                  "right",
+                  "justify"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alignment"
+          },
+          "first_line_indent_pt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Line Indent Pt"
+          },
+          "left_indent_pt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Left Indent Pt"
+          },
+          "right_indent_pt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Right Indent Pt"
+          },
+          "space_before_pt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Space Before Pt"
+          },
+          "space_after_pt": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Space After Pt"
+          },
+          "space_before_lines": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Space Before Lines"
+          },
+          "space_after_lines": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Space After Lines"
+          },
+          "line_spacing": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Spacing"
+          },
+          "line_spacing_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "multiple",
+                  "exact",
+                  "at_least"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Spacing Mode"
+          },
+          "keep_with_next": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keep With Next"
+          },
+          "keep_together": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keep Together"
+          },
+          "page_break_before": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Break Before"
+          }
+        },
+        "type": "object",
+        "title": "ParagraphFormat"
+      },
+      "PatchOperation": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "target_id": {
+            "type": "string",
+            "title": "Target Id"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "semantic_role": {
+            "type": "string",
+            "title": "Semantic Role"
+          },
+          "operation_type": {
+            "type": "string",
+            "enum": [
+              "apply_role_format",
+              "apply_page_format",
+              "reformat_formulas",
+              "normalize_citations",
+              "rebuild_toc",
+              "apply_automatic_numbering",
+              "create_cross_references",
+              "convert_notes_to_footnotes"
+            ],
+            "title": "Operation Type"
+          },
+          "before": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Before"
+          },
+          "after": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "After"
+          },
+          "text_preview": {
+            "type": "string",
+            "title": "Text Preview",
+            "default": ""
+          },
+          "precondition_hash": {
+            "type": "string",
+            "title": "Precondition Hash"
+          },
+          "risk": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Risk",
+            "default": "low"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "proposed",
+              "manual_review",
+              "approved",
+              "applied",
+              "skipped",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "execution_scope": {
+            "type": "string",
+            "enum": [
+              "full",
+              "preserve_protected_content",
+              "controlled_ooxml_rewrite"
+            ],
+            "title": "Execution Scope",
+            "default": "full"
+          },
+          "changed_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Changed Fields"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result"
+          },
+          "field_sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Field Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "target_id",
+          "rule_id",
+          "semantic_role",
+          "operation_type",
+          "before",
+          "after",
+          "precondition_hash",
+          "confidence",
+          "status"
+        ],
+        "title": "PatchOperation"
+      },
+      "PatchPlan": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "rule_pack_id": {
+            "type": "string",
+            "title": "Rule Pack Id"
+          },
+          "rule_pack_version": {
+            "type": "string",
+            "title": "Rule Pack Version"
+          },
+          "rule_pack_hash": {
+            "type": "string",
+            "title": "Rule Pack Hash"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/PatchOperation"
+            },
+            "type": "array",
+            "title": "Operations"
+          },
+          "summary": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Summary"
+          },
+          "formatting_policy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FormattingPolicy"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notices": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notices"
+          },
+          "uncovered_roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Uncovered Roles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_sha256",
+          "rule_pack_id",
+          "rule_pack_version",
+          "rule_pack_hash",
+          "plan_version",
+          "operations",
+          "summary"
+        ],
+        "title": "PatchPlan"
+      },
+      "PlaceholderCandidate": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "story": {
+            "type": "string",
+            "title": "Story"
+          },
+          "part_name": {
+            "type": "string",
+            "title": "Part Name"
+          },
+          "occurrences": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Occurrences"
+          },
+          "in_text_box": {
+            "type": "boolean",
+            "title": "In Text Box",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "key",
+          "story",
+          "part_name",
+          "occurrences"
+        ],
+        "title": "PlaceholderCandidate"
+      },
+      "RequirementSource": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "builtin",
+              "text",
+              "docx",
+              "template",
+              "manual"
+            ],
+            "title": "Kind",
+            "default": "manual"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9A-Fa-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sha256"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label"
+        ],
+        "title": "RequirementSource"
+      },
+      "RiskFlags": {
+        "properties": {
+          "formula": {
+            "type": "boolean",
+            "title": "Formula",
+            "default": false
+          },
+          "text_box": {
+            "type": "boolean",
+            "title": "Text Box",
+            "default": false
+          },
+          "drawing": {
+            "type": "boolean",
+            "title": "Drawing",
+            "default": false
+          },
+          "revision": {
+            "type": "boolean",
+            "title": "Revision",
+            "default": false
+          },
+          "field": {
+            "type": "boolean",
+            "title": "Field",
+            "default": false
+          },
+          "external_link": {
+            "type": "boolean",
+            "title": "External Link",
+            "default": false
+          },
+          "embedded_object": {
+            "type": "boolean",
+            "title": "Embedded Object",
+            "default": false
+          },
+          "nested_table": {
+            "type": "boolean",
+            "title": "Nested Table",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "RiskFlags"
+      },
+      "RoleRule": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9_.-]+$",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Role"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "info",
+              "warning",
+              "error"
+            ],
+            "title": "Severity",
+            "default": "error"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority",
+            "default": 100
+          },
+          "min_confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Min Confidence",
+            "default": 0.9
+          },
+          "preserve_style_identity": {
+            "type": "boolean",
+            "title": "Preserve Style Identity",
+            "default": false
+          },
+          "paragraph": {
+            "$ref": "#/components/schemas/ParagraphFormat"
+          },
+          "character": {
+            "$ref": "#/components/schemas/CharacterFormat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "description",
+          "source"
+        ],
+        "title": "RoleRule"
+      },
+      "RuleEvidence": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "property_path": {
+            "type": "string",
+            "title": "Property Path"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ],
+            "title": "Value"
+          },
+          "source_line": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Source Line"
+          },
+          "quote": {
+            "type": "string",
+            "maxLength": 240,
+            "title": "Quote"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "property_path",
+          "value",
+          "source_line",
+          "quote",
+          "confidence"
+        ],
+        "title": "RuleEvidence"
+      },
+      "RulePack": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": [
+              "1.0",
+              "2.0"
+            ],
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9-]+$",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Version"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale",
+            "default": "zh-CN"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "default": ""
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/RuleRequirements"
+          },
+          "page": {
+            "$ref": "#/components/schemas/PageFormat"
+          },
+          "explicit_page_fields": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Explicit Page Fields"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleRule"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Roles"
+          },
+          "advanced": {
+            "$ref": "#/components/schemas/AdvancedWordFormat"
+          },
+          "template": {
+            "$ref": "#/components/schemas/TemplateRule"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "roles"
+        ],
+        "title": "RulePack"
+      },
+      "RulePackCapabilityReport": {
+        "properties": {
+          "executable": {
+            "type": "boolean",
+            "title": "Executable"
+          },
+          "required": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "document.page_layout",
+                "document.paragraph_formatting",
+                "document.character_formatting",
+                "word.formula_formatting",
+                "word.citation_normalization",
+                "word.toc",
+                "word.automatic_numbering",
+                "word.notes",
+                "template.inspect",
+                "template.fill",
+                "template.placeholders",
+                "sections.page_numbering",
+                "sections.headers_footers",
+                "word.cross_references",
+                "word.content_controls"
+              ]
+            },
+            "type": "array",
+            "title": "Required"
+          },
+          "supported": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "document.page_layout",
+                "document.paragraph_formatting",
+                "document.character_formatting",
+                "word.formula_formatting",
+                "word.citation_normalization",
+                "word.toc",
+                "word.automatic_numbering",
+                "word.notes",
+                "template.inspect",
+                "template.fill",
+                "template.placeholders",
+                "sections.page_numbering",
+                "sections.headers_footers",
+                "word.cross_references",
+                "word.content_controls"
+              ]
+            },
+            "type": "array",
+            "title": "Supported"
+          },
+          "unsupported": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "document.page_layout",
+                "document.paragraph_formatting",
+                "document.character_formatting",
+                "word.formula_formatting",
+                "word.citation_normalization",
+                "word.toc",
+                "word.automatic_numbering",
+                "word.notes",
+                "template.inspect",
+                "template.fill",
+                "template.placeholders",
+                "sections.page_numbering",
+                "sections.headers_footers",
+                "word.cross_references",
+                "word.content_controls"
+              ]
+            },
+            "type": "array",
+            "title": "Unsupported"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "executable",
+          "required",
+          "supported",
+          "unsupported"
+        ],
+        "title": "RulePackCapabilityReport"
+      },
+      "RulePackDraft": {
+        "properties": {
+          "rule_pack": {
+            "$ref": "#/components/schemas/RulePack"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/RuleEvidence"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "source_filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Filename"
+          },
+          "source_format": {
+            "type": "string",
+            "enum": [
+              "text",
+              "txt",
+              "md",
+              "docx",
+              "mixed"
+            ],
+            "title": "Source Format"
+          },
+          "recognized_properties": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Recognized Properties"
+          },
+          "unrecognized_lines": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unrecognized Lines"
+          },
+          "capability_report": {
+            "$ref": "#/components/schemas/RulePackCapabilityReport"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_pack",
+          "evidence",
+          "warnings",
+          "source_format",
+          "recognized_properties",
+          "unrecognized_lines",
+          "capability_report"
+        ],
+        "title": "RulePackDraft"
+      },
+      "RulePackSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "locale": {
+            "type": "string",
+            "title": "Locale"
+          },
+          "content_hash": {
+            "type": "string",
+            "title": "Content Hash"
+          },
+          "builtin": {
+            "type": "boolean",
+            "title": "Builtin"
+          },
+          "capability_report": {
+            "$ref": "#/components/schemas/RulePackCapabilityReport"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version",
+          "locale",
+          "content_hash",
+          "builtin",
+          "capability_report"
+        ],
+        "title": "RulePackSummary"
+      },
+      "RuleRequirements": {
+        "properties": {
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/RequirementSource"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "unresolved": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unresolved"
+          },
+          "conflicts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Conflicts"
+          },
+          "required_capabilities": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "document.page_layout",
+                "document.paragraph_formatting",
+                "document.character_formatting",
+                "word.formula_formatting",
+                "word.citation_normalization",
+                "word.toc",
+                "word.automatic_numbering",
+                "word.notes",
+                "template.inspect",
+                "template.fill",
+                "template.placeholders",
+                "sections.page_numbering",
+                "sections.headers_footers",
+                "word.cross_references",
+                "word.content_controls"
+              ]
+            },
+            "type": "array",
+            "title": "Required Capabilities"
+          }
+        },
+        "type": "object",
+        "title": "RuleRequirements"
+      },
+      "SectionFormatSnapshot": {
+        "properties": {
+          "section_index": {
+            "type": "integer",
+            "title": "Section Index"
+          },
+          "width_mm": {
+            "type": "number",
+            "title": "Width Mm"
+          },
+          "height_mm": {
+            "type": "number",
+            "title": "Height Mm"
+          },
+          "orientation": {
+            "type": "string",
+            "enum": [
+              "portrait",
+              "landscape"
+            ],
+            "title": "Orientation"
+          },
+          "margin_top_mm": {
+            "type": "number",
+            "title": "Margin Top Mm"
+          },
+          "margin_bottom_mm": {
+            "type": "number",
+            "title": "Margin Bottom Mm"
+          },
+          "margin_left_mm": {
+            "type": "number",
+            "title": "Margin Left Mm"
+          },
+          "margin_right_mm": {
+            "type": "number",
+            "title": "Margin Right Mm"
+          },
+          "header_distance_mm": {
+            "type": "number",
+            "title": "Header Distance Mm"
+          },
+          "footer_distance_mm": {
+            "type": "number",
+            "title": "Footer Distance Mm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section_index",
+          "width_mm",
+          "height_mm",
+          "orientation",
+          "margin_top_mm",
+          "margin_bottom_mm",
+          "margin_left_mm",
+          "margin_right_mm",
+          "header_distance_mm",
+          "footer_distance_mm"
+        ],
+        "title": "SectionFormatSnapshot"
+      },
+      "SemanticMappingCandidate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "stable_id": {
+            "type": "string",
+            "title": "Stable Id"
+          },
+          "story": {
+            "type": "string",
+            "title": "Story"
+          },
+          "style_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Id"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "occurrences": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Occurrences"
+          },
+          "text_preview": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Text Preview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "stable_id",
+          "story",
+          "confidence",
+          "occurrences",
+          "text_preview"
+        ],
+        "title": "SemanticMappingCandidate"
+      },
+      "TemplateCapabilityFinding": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "document.page_layout",
+              "document.paragraph_formatting",
+              "document.character_formatting",
+              "word.formula_formatting",
+              "word.citation_normalization",
+              "word.toc",
+              "word.automatic_numbering",
+              "word.notes",
+              "template.inspect",
+              "template.fill",
+              "template.placeholders",
+              "sections.page_numbering",
+              "sections.headers_footers",
+              "word.cross_references",
+              "word.content_controls"
+            ],
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "supported",
+              "planned"
+            ],
+            "title": "Status"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Evidence Count"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "status",
+          "evidence_count",
+          "detail"
+        ],
+        "title": "TemplateCapabilityFinding"
+      },
+      "TemplateCombinedPreview": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "plan_kind": {
+            "type": "string",
+            "const": "template_combined",
+            "title": "Plan Kind",
+            "default": "template_combined"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          },
+          "fill": {
+            "$ref": "#/components/schemas/TemplateFillPreview"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/TemplateStructurePreview"
+          },
+          "can_generate": {
+            "type": "boolean",
+            "title": "Can Generate"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "output_filename": {
+            "type": "string",
+            "title": "Output Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_filename",
+          "source_sha256",
+          "plan_version",
+          "fill",
+          "structure",
+          "can_generate",
+          "output_filename"
+        ],
+        "title": "TemplateCombinedPreview"
+      },
+      "TemplateFillBlockedTarget": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "mechanism": {
+            "type": "string",
+            "enum": [
+              "placeholder",
+              "content_control"
+            ],
+            "title": "Mechanism"
+          },
+          "story": {
+            "type": "string",
+            "title": "Story"
+          },
+          "part_name": {
+            "type": "string",
+            "title": "Part Name"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "mechanism",
+          "story",
+          "part_name",
+          "reason"
+        ],
+        "title": "TemplateFillBlockedTarget"
+      },
+      "TemplateFillOperation": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "mechanism": {
+            "type": "string",
+            "enum": [
+              "placeholder",
+              "content_control"
+            ],
+            "title": "Mechanism"
+          },
+          "story": {
+            "type": "string",
+            "title": "Story"
+          },
+          "part_name": {
+            "type": "string",
+            "title": "Part Name"
+          },
+          "occurrences": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Occurrences"
+          },
+          "value_preview": {
+            "type": "string",
+            "maxLength": 80,
+            "title": "Value Preview"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "key",
+          "mechanism",
+          "story",
+          "part_name",
+          "occurrences",
+          "value_preview"
+        ],
+        "title": "TemplateFillOperation"
+      },
+      "TemplateFillPreview": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateFillOperation"
+            },
+            "type": "array",
+            "title": "Operations"
+          },
+          "missing_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Keys"
+          },
+          "unused_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unused Keys"
+          },
+          "blocked_targets": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateFillBlockedTarget"
+            },
+            "type": "array",
+            "title": "Blocked Targets"
+          },
+          "replacement_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Replacement Count"
+          },
+          "can_generate": {
+            "type": "boolean",
+            "title": "Can Generate"
+          },
+          "output_filename": {
+            "type": "string",
+            "title": "Output Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_filename",
+          "source_sha256",
+          "plan_version",
+          "operations",
+          "replacement_count",
+          "can_generate",
+          "output_filename"
+        ],
+        "title": "TemplateFillPreview"
+      },
+      "TemplateFillRule": {
+        "properties": {
+          "values": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Values"
+          }
+        },
+        "type": "object",
+        "title": "TemplateFillRule"
+      },
+      "TemplateInspection": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/TemplateSummary"
+          },
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateSectionSummary"
+            },
+            "type": "array",
+            "title": "Sections"
+          },
+          "styles": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateStyleSummary"
+            },
+            "type": "array",
+            "title": "Styles"
+          },
+          "placeholders": {
+            "items": {
+              "$ref": "#/components/schemas/PlaceholderCandidate"
+            },
+            "type": "array",
+            "title": "Placeholders"
+          },
+          "content_controls": {
+            "items": {
+              "$ref": "#/components/schemas/ContentControlCandidate"
+            },
+            "type": "array",
+            "title": "Content Controls"
+          },
+          "semantic_candidates": {
+            "items": {
+              "$ref": "#/components/schemas/SemanticMappingCandidate"
+            },
+            "type": "array",
+            "title": "Semantic Candidates"
+          },
+          "field_instructions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Field Instructions"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateCapabilityFinding"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          },
+          "even_and_odd_headers": {
+            "type": "boolean",
+            "title": "Even And Odd Headers",
+            "default": false
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_filename",
+          "source_sha256",
+          "summary",
+          "sections",
+          "styles",
+          "placeholders",
+          "content_controls",
+          "semantic_candidates",
+          "field_instructions",
+          "capabilities"
+        ],
+        "title": "TemplateInspection"
+      },
+      "TemplateRule": {
+        "properties": {
+          "fill": {
+            "$ref": "#/components/schemas/TemplateFillRule"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/TemplateStructureRule"
+          }
+        },
+        "type": "object",
+        "title": "TemplateRule"
+      },
+      "TemplateSectionRule": {
+        "properties": {
+          "section_index": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Section Index"
+          },
+          "page_number_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "decimal",
+                  "lowerRoman",
+                  "upperRoman",
+                  "lowerLetter",
+                  "upperLetter"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Format"
+          },
+          "page_number_start": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 32767.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Start"
+          },
+          "clear_page_numbering": {
+            "type": "boolean",
+            "title": "Clear Page Numbering",
+            "default": false
+          },
+          "clear_page_number_start": {
+            "type": "boolean",
+            "title": "Clear Page Number Start",
+            "default": false
+          },
+          "different_first_page": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Different First Page"
+          },
+          "header_mode": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "inherit",
+              "independent_copy"
+            ],
+            "title": "Header Mode",
+            "default": "keep"
+          },
+          "footer_mode": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "inherit",
+              "independent_copy"
+            ],
+            "title": "Footer Mode",
+            "default": "keep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section_index"
+        ],
+        "title": "TemplateSectionRule"
+      },
+      "TemplateSectionStructureConfig": {
+        "properties": {
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateSectionUpdate"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Sections"
+          },
+          "even_and_odd_headers": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Even And Odd Headers"
+          }
+        },
+        "type": "object",
+        "title": "TemplateSectionStructureConfig"
+      },
+      "TemplateSectionSummary": {
+        "properties": {
+          "section_index": {
+            "type": "integer",
+            "title": "Section Index"
+          },
+          "page": {
+            "$ref": "#/components/schemas/SectionFormatSnapshot"
+          },
+          "page_number_format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Format"
+          },
+          "page_number_start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Start"
+          },
+          "different_first_page": {
+            "type": "boolean",
+            "title": "Different First Page",
+            "default": false
+          },
+          "inherits_headers": {
+            "type": "boolean",
+            "title": "Inherits Headers",
+            "default": false
+          },
+          "inherits_footers": {
+            "type": "boolean",
+            "title": "Inherits Footers",
+            "default": false
+          },
+          "references": {
+            "items": {
+              "$ref": "#/components/schemas/HeaderFooterReference"
+            },
+            "type": "array",
+            "title": "References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section_index",
+          "page"
+        ],
+        "title": "TemplateSectionSummary"
+      },
+      "TemplateSectionUpdate": {
+        "properties": {
+          "section_index": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Section Index"
+          },
+          "page_number_format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "decimal",
+                  "lowerRoman",
+                  "upperRoman",
+                  "lowerLetter",
+                  "upperLetter"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Format"
+          },
+          "page_number_start": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 32767.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Number Start"
+          },
+          "clear_page_numbering": {
+            "type": "boolean",
+            "title": "Clear Page Numbering",
+            "default": false
+          },
+          "clear_page_number_start": {
+            "type": "boolean",
+            "title": "Clear Page Number Start",
+            "default": false
+          },
+          "different_first_page": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Different First Page"
+          },
+          "header_mode": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "inherit",
+              "independent_copy"
+            ],
+            "title": "Header Mode",
+            "default": "keep"
+          },
+          "footer_mode": {
+            "type": "string",
+            "enum": [
+              "keep",
+              "inherit",
+              "independent_copy"
+            ],
+            "title": "Footer Mode",
+            "default": "keep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section_index"
+        ],
+        "title": "TemplateSectionUpdate"
+      },
+      "TemplateStructureOperation": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "title": "Operation Id"
+          },
+          "section_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Section Index"
+          },
+          "operation_type": {
+            "type": "string",
+            "enum": [
+              "page_numbering",
+              "different_first_page",
+              "even_and_odd_headers",
+              "header_link",
+              "footer_link"
+            ],
+            "title": "Operation Type"
+          },
+          "before": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Before"
+          },
+          "after": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "After"
+          },
+          "risk": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium"
+            ],
+            "title": "Risk",
+            "default": "low"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "operation_id",
+          "operation_type",
+          "before",
+          "after",
+          "detail"
+        ],
+        "title": "TemplateStructureOperation"
+      },
+      "TemplateStructurePreview": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "1.0",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_filename": {
+            "type": "string",
+            "title": "Source Filename"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "plan_version": {
+            "type": "string",
+            "title": "Plan Version"
+          },
+          "configuration": {
+            "$ref": "#/components/schemas/TemplateSectionStructureConfig"
+          },
+          "operations": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateStructureOperation"
+            },
+            "type": "array",
+            "title": "Operations"
+          },
+          "blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Blockers"
+          },
+          "can_generate": {
+            "type": "boolean",
+            "title": "Can Generate"
+          },
+          "output_filename": {
+            "type": "string",
+            "title": "Output Filename"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_filename",
+          "source_sha256",
+          "plan_version",
+          "configuration",
+          "operations",
+          "can_generate",
+          "output_filename"
+        ],
+        "title": "TemplateStructurePreview"
+      },
+      "TemplateStructureRule": {
+        "properties": {
+          "sections": {
+            "items": {
+              "$ref": "#/components/schemas/TemplateSectionRule"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "title": "Sections"
+          },
+          "even_and_odd_headers": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Even And Odd Headers"
+          }
+        },
+        "type": "object",
+        "title": "TemplateStructureRule"
+      },
+      "TemplateStyleSummary": {
+        "properties": {
+          "style_id": {
+            "type": "string",
+            "title": "Style Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "style_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Style Type"
+          },
+          "based_on": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Based On"
+          },
+          "usage_count": {
+            "type": "integer",
+            "title": "Usage Count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "style_id"
+        ],
+        "title": "TemplateStyleSummary"
+      },
+      "TemplateSummary": {
+        "properties": {
+          "sections": {
+            "type": "integer",
+            "title": "Sections",
+            "default": 0
+          },
+          "styles": {
+            "type": "integer",
+            "title": "Styles",
+            "default": 0
+          },
+          "used_styles": {
+            "type": "integer",
+            "title": "Used Styles",
+            "default": 0
+          },
+          "placeholders": {
+            "type": "integer",
+            "title": "Placeholders",
+            "default": 0
+          },
+          "content_controls": {
+            "type": "integer",
+            "title": "Content Controls",
+            "default": 0
+          },
+          "text_boxes": {
+            "type": "integer",
+            "title": "Text Boxes",
+            "default": 0
+          },
+          "fields": {
+            "type": "integer",
+            "title": "Fields",
+            "default": 0
+          },
+          "bookmarks": {
+            "type": "integer",
+            "title": "Bookmarks",
+            "default": 0
+          },
+          "header_parts": {
+            "type": "integer",
+            "title": "Header Parts",
+            "default": 0
+          },
+          "footer_parts": {
+            "type": "integer",
+            "title": "Footer Parts",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "title": "TemplateSummary"
+      },
+      "TocFormat": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "default": false
+          },
+          "min_level": {
+            "type": "integer",
+            "maximum": 9.0,
+            "minimum": 1.0,
+            "title": "Min Level",
+            "default": 1
+          },
+          "max_level": {
+            "type": "integer",
+            "maximum": 9.0,
+            "minimum": 1.0,
+            "title": "Max Level",
+            "default": 3
+          },
+          "hyperlinks": {
+            "type": "boolean",
+            "title": "Hyperlinks",
+            "default": true
+          },
+          "update_on_open": {
+            "type": "boolean",
+            "title": "Update On Open",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "TocFormat"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ValidationReport": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.0"
+          },
+          "source_sha256": {
+            "type": "string",
+            "title": "Source Sha256"
+          },
+          "output_sha256": {
+            "type": "string",
+            "title": "Output Sha256"
+          },
+          "integrity_ok": {
+            "type": "boolean",
+            "title": "Integrity Ok"
+          },
+          "checks": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Checks"
+          },
+          "differences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Differences"
+          },
+          "operation_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Operation Counts"
+          },
+          "operation_issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Operation Issues"
+          },
+          "already_compliant": {
+            "type": "integer",
+            "title": "Already Compliant",
+            "default": 0
+          },
+          "compliant_targets": {
+            "type": "integer",
+            "title": "Compliant Targets",
+            "default": 0
+          },
+          "total_rule_targets": {
+            "type": "integer",
+            "title": "Total Rule Targets",
+            "default": 0
+          },
+          "compliance_rate": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Compliance Rate"
+          },
+          "renderer_status": {
+            "type": "string",
+            "title": "Renderer Status",
+            "default": "not_requested"
+          },
+          "renderer_detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Renderer Detail"
+          },
+          "formatting_mode": {
+            "type": "string",
+            "title": "Formatting Mode",
+            "default": "preserve"
+          },
+          "formatting_notices": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formatting Notices"
+          },
+          "uncovered_roles": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Uncovered Roles"
+          },
+          "format_source_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Format Source Counts"
+          },
+          "agent_audit": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Audit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_sha256",
+          "output_sha256",
+          "integrity_ok",
+          "checks",
+          "compliance_rate"
+        ],
+        "title": "ValidationReport"
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+"""Template inspection HTTP feature."""

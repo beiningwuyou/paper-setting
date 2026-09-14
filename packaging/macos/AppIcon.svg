@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">论文排版台应用图标</title>
+  <desc id="desc">墨绿底色上的论文纸张，带有排版基线和朱砂校样标记。</desc>
+
+  <rect x="64" y="64" width="896" height="896" rx="208" fill="#174E4B"/>
+  <path d="M128 292C128 194 194 128 292 128h440c98 0 164 66 164 164v440c0 98-66 164-164 164H292c-98 0-164-66-164-164V292Z" fill="#1D5B57"/>
+
+  <path d="M294 214h328l142 142v406c0 34-28 62-62 62H294c-34 0-62-28-62-62V276c0-34 28-62 62-62Z" fill="#F8FBF9"/>
+  <path d="M622 214v102c0 22 18 40 40 40h102L622 214Z" fill="#D8E6E0"/>
+  <path d="M622 214v102c0 22 18 40 40 40h102" fill="none" stroke="#A9C3B8" stroke-width="12" stroke-linejoin="round"/>
+
+  <path d="M326 354v330" fill="none" stroke="#B74E3F" stroke-width="18" stroke-linecap="round"/>
+
+  <path d="M386 376h214M386 444h284M386 512h238M386 580h284M386 648h178" fill="none" stroke="#174E4B" stroke-width="22" stroke-linecap="round"/>
+  <path d="m548 724 52 52 112-130" fill="none" stroke="#B74E3F" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

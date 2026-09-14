@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Setting v1.1 - 论文一键智能排版工作台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#f4f0e6',
+            'canvas-soft': '#edf4ee',
+            surface: '#ffffff',
+            'surface-card': '#fffdfa',
+            ink: '#18221c',
+            'ink-secondary': '#58655d',
+            'ink-muted': '#859188',
+            primary: '#1c5d43',
+            'primary-hover': '#12402e',
+            'primary-light': '#edf4ee',
+            'agent-purple': '#5b4aa6',
+            'agent-purple-light': '#f3f0fd',
+            outline: '#e2dcd0',
+            'outline-strong': '#c9c2b2',
+            'status-success': '#287a55',
+          },
+          fontFamily: {
+            serif: ['"Noto Serif SC"', '"Songti SC"', '"Source Han Serif SC"', 'Georgia', 'serif'],
+            sans: ['Inter', '-apple-system', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f4f0e6;
+      background-image: radial-gradient(circle at 50% 120px, rgba(255, 255, 255, 0.7) 0%, rgba(244, 240, 230, 0.4) 65%, #ede7da 100%);
+      font-family: Inter, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #18221c;
+      min-height: 100vh;
+    }
+    .paper-pattern {
+      background-image: radial-gradient(rgba(24, 34, 28, 0.04) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+    /* Physics spring-like transition for pill indicator */
+    .mode-slider-bg {
+      transition: all 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .pulse-dot {
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(40, 122, 85, 0.6); }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen paper-pattern">
+
+  <!-- Top Dark Navigation Bar -->
+  <header class="w-full bg-[#161c19] text-white border-b border-[#28332d] sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <!-- Title & Branding -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm border border-emerald-400/20">
+          文
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-sm md:text-base tracking-wide text-zinc-100">
+            Paper Setting v1.1 <span class="text-xs text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 ml-1">动效与交互原型</span>
+          </span>
+          <span class="text-zinc-500 hidden sm:inline text-xs">·</span>
+          <span class="text-zinc-400 text-xs hidden sm:inline font-mono">纯本地双视图体系</span>
+        </div>
+      </div>
+
+      <!-- Quick Jump Buttons & Actions -->
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
+        <div class="hidden md:flex items-center gap-1.5 bg-[#202924] px-3 py-1.5 rounded-full border border-emerald-500/20 text-emerald-300 font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot inline-block"></span>
+          <span>离线沙箱就绪 · 0 Token</span>
+        </div>
+        <button class="text-zinc-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-[#25302a] transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          GB/T 7713.1 规范库
+        </button>
+        <button class="text-zinc-300 hover:text-white px-3 py-1.5 rounded-md hover:bg-[#25302a] transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          排版偏好
+        </button>
+        <a href="#help" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 px-3 py-1.5 rounded-md transition font-medium">
+          离线文档
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Centered Content Workspace -->
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-8 flex flex-col items-center">
+    
+    <!-- Top Mode Switcher Section -->
+    <div class="flex flex-col items-center mb-6">
+      <!-- Sliding Pill Segmented Control -->
+      <div class="relative bg-[#e6dfd1] p-1.5 rounded-full border border-outline shadow-inner flex items-center w-[360px] sm:w-[420px]">
+        <!-- Sliding Background Highlight -->
+        <div id="sliderHighlight" class="absolute top-1.5 left-1.5 bottom-1.5 w-[calc(50%-6px)] bg-surface rounded-full shadow-[0_2px_8px_rgba(24,34,28,0.12)] border border-outline/60 mode-slider-bg"></div>
+
+        <!-- Option 1: 极简排版 (Default Active) -->
+        <button id="btnSimple" onclick="switchMode('simple')" class="relative z-10 flex-1 py-2 text-center text-sm font-semibold text-primary transition-colors flex items-center justify-center gap-1.5 focus:outline-none">
+          <span>🌿</span>
+          <span>极简排版 (默认)</span>
+        </button>
+
+        <!-- Option 2: 详细与 Agent 智排 -->
+        <button id="btnAgent" onclick="switchMode('agent')" class="relative z-10 flex-1 py-2 text-center text-sm font-medium text-ink-secondary hover:text-ink transition-colors flex items-center justify-center gap-1.5 focus:outline-none">
+          <span>⚡</span>
+          <span>详细与 Agent 智排</span>
+          <span class="text-[10px] bg-agent-purple text-white px-1.5 py-0.2 rounded-full font-bold scale-90">AI</span>
+        </button>
+      </div>
+
+      <!-- Green Privacy Assurance Badge -->
+      <div class="mt-3.5 inline-flex items-center gap-2 bg-[#e4efe7] border border-[#bcdbc5] px-3.5 py-1.5 rounded-full text-xs font-medium text-[#1c5d43] shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-status-success pulse-dot"></span>
+        <span>纯本地离线纯算 · 零网络请求 · 零 Agent 调用 · 绝对保障论文隐私 (0 Token)</span>
+      </div>
+    </div>
+
+    <!-- Page Title & Subtitle (Serif Elegance) -->
+    <div class="text-center mb-8">
+      <h1 class="font-serif text-3xl sm:text-4xl font-bold text-ink tracking-tight mb-2">
+        论文一键智能排版
+      </h1>
+      <p class="text-ink-secondary text-sm sm:text-base font-normal">
+        原稿安全只读 · 规则秒级确定性编译 · 4 步极简闭环
+      </p>
+    </div>
+
+    <!-- Stepper Navigation (4 Steps) -->
+    <div class="w-full max-w-3xl mb-8">
+      <div class="flex items-center justify-between relative">
+        <!-- Connecting Line Background -->
+        <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-outline -translate-y-1/2 z-0"></div>
+        <div class="absolute top-1/2 left-0 w-1/6 h-0.5 bg-primary -translate-y-1/2 z-0 transition-all duration-300"></div>
+
+        <!-- Step 1: Active -->
+        <div class="relative z-10 flex flex-col items-center group cursor-pointer">
+          <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm shadow-[0_3px_10px_rgba(28,93,67,0.35)] border-2 border-surface transition-transform group-hover:scale-105">
+            1
+          </div>
+          <span class="text-xs font-bold text-primary mt-2">1 上传文稿</span>
+        </div>
+
+        <!-- Step 2: Inactive -->
+        <div class="relative z-10 flex flex-col items-center opacity-70 group cursor-pointer hover:opacity-100 transition">
+          <div class="w-10 h-10 rounded-full bg-[#dfd9cb] text-ink-secondary flex items-center justify-center font-medium text-sm border-2 border-surface">
+            2
+          </div>
+          <span class="text-xs font-medium text-ink-secondary mt-2">2 目标规范</span>
+        </div>
+
+        <!-- Step 3: Inactive -->
+        <div class="relative z-10 flex flex-col items-center opacity-70 group cursor-pointer hover:opacity-100 transition">
+          <div class="w-10 h-10 rounded-full bg-[#dfd9cb] text-ink-secondary flex items-center justify-center font-medium text-sm border-2 border-surface">
+            3
+          </div>
+          <span class="text-xs font-medium text-ink-secondary mt-2">3 智能排版</span>
+        </div>
+
+        <!-- Step 4: Inactive -->
+        <div class="relative z-10 flex flex-col items-center opacity-70 group cursor-pointer hover:opacity-100 transition">
+          <div class="w-10 h-10 rounded-full bg-[#dfd9cb] text-ink-secondary flex items-center justify-center font-medium text-sm border-2 border-surface">
+            4
+          </div>
+          <span class="text-xs font-medium text-ink-secondary mt-2">4 导出成品</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1 Card Panel -->
+    <div class="w-full bg-surface-card rounded-2xl border border-outline shadow-[0_8px_30px_rgba(24,34,28,0.06)] p-6 sm:p-8 mb-8 transition-all">
+      <!-- Card Header -->
+      <div class="mb-6">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-primary"></span>
+          <h2 class="font-serif text-xl sm:text-2xl font-bold text-ink">
+            上传您的论文文稿
+          </h2>
+        </div>
+        <p class="text-ink-secondary text-xs sm:text-sm pl-4.5 border-l-2 border-primary/30 mt-1.5 ml-1">
+          原文件将在单机本地隔离沙箱中处理，绝不上云、绝不调用外网，永不覆盖您的原始文件。
+        </p>
+      </div>
+
+      <!-- Dropzone Area -->
+      <div class="relative border-2 border-dashed border-[#a3c2b1] hover:border-primary bg-[#faf8f3] hover:bg-[#f6f9f6] rounded-xl p-8 sm:p-10 text-center transition-all cursor-pointer group shadow-inner">
+        <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".docx,.doc,.tex,.pdf">
+        
+        <!-- Icon -->
+        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[#eaf3ed] text-primary flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+
+        <!-- Main text -->
+        <p class="text-base font-semibold text-ink group-hover:text-primary transition-colors">
+          点击选择论文文件，或将文件拖拽至此
+        </p>
+        <p class="text-xs text-ink-muted mt-1.5 mb-5 font-mono">
+          支持格式：Microsoft Word (.docx / .doc) · LaTeX (.tex) · PDF 文档
+        </p>
+
+        <!-- Pill button for Demo Sample -->
+        <div class="inline-block relative z-10">
+          <button type="button" onclick="loadSamplePaper(event)" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#b8cfc1] text-primary text-xs font-semibold hover:bg-primary hover:text-white shadow-sm transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+            <span>✨</span>
+            <span>填入演示样本：《基于深度学习的学术排版优化.docx》</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Ready File Card Details -->
+      <div id="fileDetailCard" class="mt-6 bg-[#f7f9f7] border border-[#cfe1d5] rounded-xl p-4.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-lg bg-[#2b579a] text-white flex flex-col items-center justify-center font-bold shadow-sm shrink-0">
+            <span class="text-[10px] uppercase font-mono tracking-tighter opacity-80 leading-none">DOCX</span>
+            <svg class="w-5 h-5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 id="fileNameDisplay" class="font-semibold text-sm text-ink font-serif">
+                基于深度学习的学术排版优化.docx
+              </h4>
+              <span class="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] px-2 py-0.5 rounded font-medium">已本地解析</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-ink-secondary mt-1">
+              <span>文件大小：1.84 MB</span>
+              <span>·</span>
+              <span>正文字数：约 16,420 字</span>
+              <span>·</span>
+              <span class="text-status-success font-medium">包含 18 张图表 · 32 处公式</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 self-end sm:self-center">
+          <button type="button" onclick="document.getElementById('fileInput').click()" class="px-3.5 py-1.5 rounded-lg border border-outline text-ink-secondary hover:text-ink hover:bg-white text-xs font-medium transition shadow-xs">
+            更换文件
+          </button>
+          <button type="button" title="查看本地沙箱哈希摘要" class="p-1.5 text-ink-muted hover:text-ink transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Security & Sandbox Feature Pill Row -->
+      <div class="mt-6 pt-5 border-t border-outline/70 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-ink-secondary">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>只读解析原稿，绝不篡改原始源文件</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span>单机 WebAssembly 纯算沙箱，物理断网可用</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-primary shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>GB/T 7713.1 学术结构即时分块校验</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Row -->
+    <div class="w-full flex items-center justify-between">
+      <div class="text-xs text-ink-muted flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-status-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>就绪状态：已加载学术文稿，下一步可配置目标高校/期刊规范</span>
+      </div>
+
+      <button type="button" class="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-primary hover:bg-primary-hover text-white font-medium text-sm shadow-[0_4px_14px_rgba(28,93,67,0.35)] hover:shadow-[0_6px_20px_rgba(28,93,67,0.4)] transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+        <span>下一步：设定排版标准</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Bottom Mini Footer -->
+  <footer class="w-full py-4 text-center text-xs text-ink-muted border-t border-outline/50">
+    <div class="max-w-4xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Paper Setting v1.1 · 本地离线智能排版系统</span>
+      <span class="text-[11px] font-mono">SHA-256 Verified Sandbox · 0 Network I/O</span>
+    </div>
+  </footer>
+
+  <script>
+    function switchMode(mode) {
+      const slider = document.getElementById('sliderHighlight');
+      const btnSimple = document.getElementById('btnSimple');
+      const btnAgent = document.getElementById('btnAgent');
+
+      if (mode === 'simple') {
+        slider.style.transform = 'translateX(0%)';
+        btnSimple.classList.add('text-primary', 'font-semibold');
+        btnSimple.classList.remove('text-ink-secondary', 'font-medium');
+        btnAgent.classList.remove('text-primary', 'font-semibold');
+        btnAgent.classList.add('text-ink-secondary', 'font-medium');
+      } else {
+        slider.style.transform = 'translateX(100%)';
+        btnAgent.classList.add('text-primary', 'font-semibold');
+        btnAgent.classList.remove('text-ink-secondary', 'font-medium');
+        btnSimple.classList.remove('text-primary', 'font-semibold');
+        btnSimple.classList.add('text-ink-secondary', 'font-medium');
+      }
+    }
+
+    function loadSamplePaper(e) {
+      if (e) e.stopPropagation();
+      const card = document.getElementById('fileDetailCard');
+      card.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+      setTimeout(() => {
+        card.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+      }, 800);
+    }
+  </script>
+</body>
+</html>

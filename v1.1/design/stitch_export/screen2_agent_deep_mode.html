@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Setting v1.1 论文排版工作台 · Agent 智排模式</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              paper: '#f4f0e6',
+              paperSoft: '#faf7f2',
+              ink: '#18221c',
+              inkSec: '#58655d',
+              inkMuted: '#859188',
+              emerald: '#1c5d43',
+              emeraldHover: '#144632',
+              emeraldLight: '#edf4ee',
+              border: '#e3ddd2',
+              borderLight: '#eeeae1',
+              agent: '#5b4aa6',
+              agentHover: '#493a89',
+              agentLight: '#f3f0fd',
+              agentBorder: '#d9d0f7'
+            }
+          },
+          fontFamily: {
+            serif: ['"Noto Serif SC"', 'Songti SC', 'Source Han Serif SC', 'serif'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif']
+          },
+          boxShadow: {
+            'paper': '0 4px 20px -2px rgba(24, 34, 28, 0.05), 0 2px 6px -1px rgba(24, 34, 28, 0.03)',
+            'paper-hover': '0 12px 30px -4px rgba(24, 34, 28, 0.08), 0 4px 10px -2px rgba(24, 34, 28, 0.04)',
+            'agent-glow': '0 0 25px rgba(91, 74, 166, 0.15)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f4f0e6;
+      background-image: radial-gradient(rgba(24, 34, 28, 0.06) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d4ccbe;
+      border-radius: 9999px;
+    }
+    .badge-shimmer {
+      background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2.5s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-brand-ink font-sans flex flex-col antialiased selection:bg-brand-agentLight selection:text-brand-agent">
+
+  <!-- Top Navigation Bar -->
+  <header class="bg-[#14231b] text-white border-b border-black/20 sticky top-0 z-50 backdrop-blur-md bg-opacity-95 px-6 py-3 transition-all">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Left: Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center font-serif font-black text-lg text-white shadow-inner shadow-white/20">
+          文
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="font-serif font-bold text-lg tracking-tight text-stone-100">Paper Setting v1.1</span>
+          <span class="text-xs text-emerald-300 font-medium px-2 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/30">双视图交互系统</span>
+        </div>
+        <span class="hidden md:inline-block text-xs text-stone-400 pl-2 border-l border-white/10">深度语义解析与本地 OOXML 确定性编译</span>
+      </div>
+
+      <!-- Right: Status Badges & Quick Links -->
+      <div class="flex items-center gap-4 text-xs font-medium">
+        <div class="flex items-center gap-2 bg-stone-900/80 px-3 py-1.5 rounded-full border border-stone-700/60 shadow-inner">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-stone-300">离线沙箱就绪</span>
+          <span class="text-stone-600">·</span>
+          <span class="text-emerald-400 font-mono font-semibold">0 Token 离线</span>
+        </div>
+
+        <a href="#rules" class="text-stone-300 hover:text-white flex items-center gap-1.5 transition-colors">
+          <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          GB/T 7713.1 规范库
+        </a>
+
+        <div class="h-3 w-px bg-white/15"></div>
+
+        <button class="bg-white/10 hover:bg-white/15 text-stone-200 hover:text-white px-3 py-1.5 rounded-md border border-white/10 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          排版偏好
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 flex flex-col gap-7">
+
+    <!-- Top Mode Switcher Bar -->
+    <div class="flex flex-col items-center justify-center gap-3">
+      <!-- Pill Container -->
+      <div class="bg-[#e7e1d4] p-1.5 rounded-full border border-brand-border flex items-center shadow-inner relative max-w-md w-full">
+        <!-- Segment 1: Standard (Inactive) -->
+        <button onclick="alert('提示：可切换至【极简排版向导】模式进行4步流水线作业')" class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-full text-stone-600 hover:text-stone-900 transition-all font-medium text-sm">
+          <svg class="w-4 h-4 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>极简排版 (默认)</span>
+        </button>
+        <!-- Segment 2: Agent (Active) -->
+        <div class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-full bg-white text-brand-agent shadow-md font-semibold text-sm border border-brand-agentBorder/60 transition-all">
+          <span class="text-amber-500 text-sm">⚡</span>
+          <span>详细与 Agent 智排</span>
+          <span class="w-4 h-4 rounded-full bg-brand-agent text-white text-[10px] flex items-center justify-center font-bold">AI</span>
+        </div>
+      </div>
+
+      <!-- Subtitle Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#edeaf7] border border-brand-agentBorder text-xs text-brand-agent font-medium shadow-sm">
+        <span class="inline-block w-2 h-2 rounded-full bg-brand-agent animate-pulse"></span>
+        <span>详细版排版模式 · 已接入 Agent 深度语义理解 · 攻坚复杂交叉引用与引注转脚注</span>
+      </div>
+    </div>
+
+    <!-- Section 1: Agent Superpower Banner -->
+    <section class="rounded-2xl p-6 bg-gradient-to-r from-[#f8f6ff] via-[#f1f3fd] to-[#edf3ff] border border-brand-agentBorder shadow-paper relative overflow-hidden transition-all hover:shadow-paper-hover">
+      <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-purple-200/40 blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-indigo-100/50 blur-2xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-brand-agentLight border border-brand-agent/20 flex items-center justify-center text-brand-agent shadow-sm">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            <h1 class="font-serif font-bold text-2xl text-brand-ink tracking-tight flex items-center gap-2">
+              Agent 深度排版协同工作台
+            </h1>
+            <span class="px-2.5 py-0.5 rounded-full bg-brand-agent text-white text-xs font-semibold tracking-wide shadow-sm flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+              Agent 已就绪
+            </span>
+          </div>
+          <p class="text-sm text-stone-600 pl-12 max-w-3xl leading-relaxed">
+            专门针对研究生学位论文、顶级学术期刊格式要求攻坚。Agent
+            自主解析正文逻辑，处理多级序号对齐、跨页图表交叉引用，并在本地虚拟沙箱中提供全量透明的段落级 OOXML 修改审计。
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 self-start md:self-auto pl-12 md:pl-0">
+          <div class="bg-white/90 backdrop-blur px-4 py-2 rounded-xl border border-brand-border text-xs flex flex-col items-end shadow-sm">
+            <span class="text-stone-400 font-medium">当前加载文稿</span>
+            <span class="text-brand-ink font-semibold flex items-center gap-1 font-mono">
+              <svg class="w-3.5 h-3.5 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4zM8 18v-2h8v2H8zm0-4v-2h8v2H8zm0-4V8h4v2H8z"/></svg>
+              基于深度学习的学术排版优化.docx
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: 3 Feature Highlight Cards in a Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <!-- Card 1 -->
+      <div class="bg-white rounded-xl p-5 border border-brand-border hover:border-brand-agent/40 shadow-paper hover:shadow-paper-hover transition-all duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 mb-3 group-hover:scale-105 transition-transform">
+            <span class="text-xl">📌</span>
+          </div>
+          <h3 class="font-serif font-bold text-base text-brand-ink mb-2 group-hover:text-brand-agent transition-colors flex items-center justify-between">
+            <span>正文引注转真实脚注</span>
+            <span class="text-[11px] font-sans font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">自动检测到 24 处</span>
+          </h3>
+          <p class="text-xs text-brand-inkSec leading-relaxed">
+            智能识别文内 <code class="bg-stone-100 text-stone-700 px-1 py-0.5 rounded text-[11px] font-mono">[1]</code>、<code class="bg-stone-100 text-stone-700 px-1 py-0.5 rounded text-[11px] font-mono">[2-4]</code> 等标注，自动将其转换为 Word 规范物理脚注（Footnotes），并从文末参考文献列表中清理对应冗余项。
+          </p>
+        </div>
+        <div class="pt-4 mt-3 border-t border-stone-100 flex items-center justify-between text-xs">
+          <span class="text-stone-400">底层技术: OOXML footnoteReference</span>
+          <span class="text-brand-agent font-medium group-hover:translate-x-0.5 transition-transform flex items-center">
+            查看详情 &rarr;
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="bg-white rounded-xl p-5 border border-brand-border hover:border-brand-agent/40 shadow-paper hover:shadow-paper-hover transition-all duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-700 mb-3 group-hover:scale-105 transition-transform">
+            <span class="text-xl">🔗</span>
+          </div>
+          <h3 class="font-serif font-bold text-base text-brand-ink mb-2 group-hover:text-brand-agent transition-colors flex items-center justify-between">
+            <span>动态图表交叉引用修复</span>
+            <span class="text-[11px] font-sans font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">18 张图表待绑定</span>
+          </h3>
+          <p class="text-xs text-brand-inkSec leading-relaxed">
+            扫描文档中的静态文本题注（如“图 3-1”、“表 2”），升级绑定为标准 SEQ 图表题注域，并自动将正文上下文中的“见图X”重建为 REF 动态超链接交叉引用。
+          </p>
+        </div>
+        <div class="pt-4 mt-3 border-t border-stone-100 flex items-center justify-between text-xs">
+          <span class="text-stone-400">增删图表动态重排无须手动改号</span>
+          <span class="text-brand-agent font-medium group-hover:translate-x-0.5 transition-transform flex items-center">
+            查看详情 &rarr;
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="bg-white rounded-xl p-5 border border-brand-border hover:border-brand-agent/40 shadow-paper hover:shadow-paper-hover transition-all duration-300 flex flex-col justify-between group">
+        <div>
+          <div class="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200/60 flex items-center justify-center text-brand-agent mb-3 group-hover:scale-105 transition-transform">
+            <span class="text-xl">📐</span>
+          </div>
+          <h3 class="font-serif font-bold text-base text-brand-ink mb-2 group-hover:text-brand-agent transition-colors flex items-center justify-between">
+            <span>OMML 数学公式多级对齐</span>
+            <span class="text-[11px] font-sans font-semibold text-brand-agent bg-purple-50 px-2 py-0.5 rounded border border-brand-agentBorder">32 处公式就绪</span>
+          </h3>
+          <p class="text-xs text-brand-inkSec leading-relaxed">
+            统一将独立行公式转为 Office Math (OMML) 核心结构，严格配置版心居中制表位与右对齐公式序号制表位 <code class="bg-stone-100 text-stone-700 px-1 py-0.5 rounded text-[11px] font-mono">(4.2)</code>，消除空格排版导致的错位。
+          </p>
+        </div>
+        <div class="pt-4 mt-3 border-t border-stone-100 flex items-center justify-between text-xs">
+          <span class="text-stone-400">GB/T 7713.1 格式自动对齐</span>
+          <span class="text-brand-agent font-medium group-hover:translate-x-0.5 transition-transform flex items-center">
+            查看详情 &rarr;
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Feature card: Agent 规范提炼助手 -->
+    <section id="rules" class="bg-white rounded-2xl p-6 border border-brand-border shadow-paper">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-brand-agentLight text-brand-agent flex items-center justify-center text-base font-bold">
+            📜
+          </div>
+          <div>
+            <h2 class="font-serif font-bold text-lg text-brand-ink">
+              Agent 规范提炼助手 - 从通知文件或文本自动提取规范
+            </h2>
+            <p class="text-xs text-brand-inkSec">
+              直接粘贴学校研究生院 / 期刊官方的排版格式要求通知，Agent 自动推导结构树与量化排版规则
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button class="text-xs text-stone-500 hover:text-brand-ink px-3 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-50 transition-all flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            上传规范通知 PDF/Word
+          </button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div class="relative">
+          <label class="block text-xs font-semibold text-stone-600 mb-1.5">自然语言排版规则提取源（支持中英文混排、复杂层级通知）：</label>
+          <textarea rows="4" class="w-full rounded-xl p-3.5 text-xs text-stone-800 bg-[#fbfaf8] border border-stone-300 focus:border-brand-agent focus:ring-2 focus:ring-brand-agentLight focus:outline-none font-mono leading-relaxed custom-scrollbar shadow-inner" placeholder="在此粘贴学校或期刊排版要求...">1. 正文字体：中文统一采用宋体小四号 (12pt)，英文及数字采用 Times New Roman，行距统一固定值 20 磅，首行缩进 2 字符；
+2. 一级标题：三号黑体 (16pt)，居中对齐，段前 12 磅、段后 6 磅，单倍行距；
+3. 二级标题：四号黑体 (14pt)，顶格左对齐，段前 6 磅、段后 3 磅；
+4. 图表题注：五号黑体 (10.5pt)，居中，图序与图名间空一个半角字符，表格采用三线表规范；
+5. 引注要求：正文中引文序号必须转换为真实 Word 物理脚注（单页底端重编号），不得采用文末连续尾注；
+6. 数学公式：OMML 居中，编号右顶格，括号格式统一为半角圆括号 (X.X)。</textarea>
+        </div>
+
+        <!-- Parse Result Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3.5 rounded-xl bg-purple-50/70 border border-brand-agentBorder">
+          <div class="flex items-center gap-2.5 text-xs">
+            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-brand-agent text-white text-[11px] shadow-sm">
+              ✨
+            </span>
+            <span class="font-medium text-stone-800">
+              Agent 已解析出 <strong class="text-brand-agent font-bold font-mono text-sm">6</strong> 项基础规则，预估与原稿契合度 <strong class="text-emerald-700 font-bold font-mono text-sm">98%</strong>
+            </span>
+            <span class="hidden md:inline-block text-[11px] px-2 py-0.5 bg-white rounded border border-purple-200 text-purple-700 font-mono">规则引擎: GB-T-7713.1-Extracted</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button class="text-xs text-stone-600 hover:text-stone-900 px-3 py-1.5 rounded-lg border border-purple-200 hover:bg-white transition-all">
+              重新提炼
+            </button>
+            <button class="bg-brand-agent hover:bg-brand-agentHover text-white px-4 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center gap-1.5 active:scale-95">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              更新为当前排版基准
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Feature card: 可审计计划 · 段落级 Diff 检查 -->
+    <section class="bg-white rounded-2xl p-6 border border-brand-border shadow-paper space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center text-base font-bold">
+            🔍
+          </div>
+          <div>
+            <h2 class="font-serif font-bold text-lg text-brand-ink flex items-center gap-2">
+              可审计计划 · 段落级 Diff 检查 - 格式修改前后详细比对
+              <span class="text-xs font-sans font-normal px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 border border-stone-200">3 类核心变动待授权</span>
+            </h2>
+            <p class="text-xs text-brand-inkSec">
+              严格贯彻单机无害原则：每个段落的底层 OOXML 变动均支持预览与按需批准，绝不盲目覆盖
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs">
+          <button class="text-brand-agent font-medium hover:underline">全选推荐项</button>
+          <span class="text-stone-300">|</span>
+          <button class="text-stone-500 hover:underline">仅查看高危修改</button>
+        </div>
+      </div>
+
+      <!-- Diff Table -->
+      <div class="overflow-x-auto border border-stone-200 rounded-xl">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-[#f9f7f2] text-stone-700 font-semibold border-b border-stone-200 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th scope="col" class="py-3 px-4 w-28">修改目标</th>
+              <th scope="col" class="py-3 px-4 w-5/12">修改前 (原稿)</th>
+              <th scope="col" class="py-3 px-4 w-5/12">修改后 (Agent 建议)</th>
+              <th scope="col" class="py-3 px-4 text-center w-28">操作 (批准复选框)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-stone-200 bg-white">
+            <!-- Row 1: 一级标题 -->
+            <tr class="hover:bg-stone-50/80 transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-brand-ink align-top">
+                <span class="inline-block px-2 py-0.5 rounded bg-stone-100 text-stone-700 text-[11px] font-mono mb-1">§ 标题</span>
+                <div>一级标题</div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-red-50/50 border border-red-100 text-stone-700 space-y-1">
+                  <div class="font-serif text-sm text-stone-900">“1. 引言与相关研究综述”</div>
+                  <div class="text-[11px] text-stone-500 font-mono">
+                    <span class="text-red-600 line-through">宋体 14pt (四号)</span> · 左对齐 · 段前 0pt / 段后 0pt · 无大纲级别
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 text-stone-700 space-y-1">
+                  <div class="font-serif text-sm font-bold text-stone-900">“第1章 引言与相关研究综述”</div>
+                  <div class="text-[11px] text-emerald-800 font-mono">
+                    <span class="font-semibold text-emerald-700">黑体 16pt (三号)</span> · 居中对齐 · 段前 12pt / 段后 6pt · 绑定大纲 1 级
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 text-center align-middle">
+                <label class="inline-flex items-center justify-center cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 rounded text-brand-agent focus:ring-brand-agent border-stone-300">
+                </label>
+                <div class="text-[10px] text-emerald-600 font-medium mt-1">已推荐勾选</div>
+              </td>
+            </tr>
+
+            <!-- Row 2: 正文段落 -->
+            <tr class="hover:bg-stone-50/80 transition-colors">
+              <td class="py-3.5 px-4 font-semibold text-brand-ink align-top">
+                <span class="inline-block px-2 py-0.5 rounded bg-stone-100 text-stone-700 text-[11px] font-mono mb-1">¶ 段落</span>
+                <div>正文段落</div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-red-50/50 border border-red-100 text-stone-700 space-y-1">
+                  <div class="text-xs text-stone-800 line-clamp-2">“……近年来随着大语言模型与神经网络在学术领域的深入应用，传统排版往往耗费学者大量精力……”</div>
+                  <div class="text-[11px] text-stone-500 font-mono">
+                    <span class="text-red-600 line-through">微米级空格缩进 (4个半角空格)</span> · 1.5倍行距 · 西文 Calibri 字体混杂
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-100 text-stone-700 space-y-1">
+                  <div class="text-xs text-stone-800 line-clamp-2">“……近年来随着大语言模型与神经网络在学术领域的深入应用，传统排版往往耗费学者大量精力……”</div>
+                  <div class="text-[11px] text-emerald-800 font-mono">
+                    <span class="font-semibold text-emerald-700">首行缩进标准 2字符 (w:firstLine)</span> · 固定行距 20pt · 中文宋体/英文 Times New Roman
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 text-center align-middle">
+                <label class="inline-flex items-center justify-center cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 rounded text-brand-agent focus:ring-brand-agent border-stone-300">
+                </label>
+                <div class="text-[10px] text-emerald-600 font-medium mt-1">已推荐勾选</div>
+              </td>
+            </tr>
+
+            <!-- Row 3: 深度 OOXML 引注转脚注 -->
+            <tr class="hover:bg-stone-50/80 transition-colors bg-purple-50/20">
+              <td class="py-3.5 px-4 font-semibold text-brand-agent align-top">
+                <span class="inline-block px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[11px] font-mono mb-1">⚡ OOXML 深度</span>
+                <div>引注转物理脚注</div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-red-50/50 border border-red-100 text-stone-700 space-y-1">
+                  <div class="text-xs text-stone-800">
+                    正文文内静态文本标注：<span class="text-red-600 font-mono bg-red-100/60 px-1 rounded">“...正如 Vaswani 等人提出 [1]...”</span>
+                  </div>
+                  <div class="text-[11px] text-stone-500 font-mono">
+                    采用纯字符输入上标，文末手动维护参考文献列表序号 1，页脚无对应物理引用关系
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 align-top">
+                <div class="p-2.5 rounded-lg bg-purple-50/60 border border-purple-200 text-stone-700 space-y-1">
+                  <div class="text-xs text-stone-800">
+                    编译为原生 Word 引用结构：<span class="text-brand-agent font-mono bg-purple-100/70 px-1 rounded">“...正如 Vaswani 等人提出 ①...”</span>
+                  </div>
+                  <div class="text-[11px] text-purple-900 font-mono">
+                    创建 <code class="bg-white px-1 py-0.5 rounded border border-purple-200">w:footnoteReference</code> 节点，并将引注释义写入页脚沙箱，文末同步清理对应冗余
+                  </div>
+                </div>
+              </td>
+              <td class="py-3.5 px-4 text-center align-middle">
+                <label class="inline-flex items-center justify-center cursor-pointer">
+                  <input type="checkbox" checked class="w-4 h-4 rounded text-brand-agent focus:ring-brand-agent border-stone-300">
+                </label>
+                <div class="text-[10px] text-brand-agent font-semibold mt-1">核心智排项</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+        <div class="text-xs text-stone-500 flex items-center gap-2">
+          <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>执行后将生成新的独立排版版本，保留原稿快照供随时回退对比</span>
+        </div>
+
+        <button class="bg-brand-agent hover:bg-brand-agentHover text-white px-6 py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-agent-glow transition-all flex items-center justify-center gap-2 active:scale-95 self-end sm:self-auto">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>授权并执行深度 Agent 排版</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Section 5: Feature card: AI 二次盲审质检 -->
+    <section class="bg-white rounded-2xl p-6 border border-brand-border shadow-paper">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-stone-100">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-base font-bold">
+            🛡️
+          </div>
+          <div>
+            <h2 class="font-serif font-bold text-lg text-brand-ink">
+              AI 二次盲审质检 - Agent 质量审查清单
+            </h2>
+            <p class="text-xs text-brand-inkSec">
+              模拟学术期刊匿名审稿人与教务处审核标准，执行严格的符号完整性与引用链追溯质检
+            </p>
+          </div>
+        </div>
+
+        <!-- Verdict Banner -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold shadow-sm self-start sm:self-auto">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+          <span class="tracking-wide">VERDICT: PASS WITH 1 SUGGESTION</span>
+        </div>
+      </div>
+
+      <!-- Notes Grid / List -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Suggestion Note (Blue/Amber alert) -->
+        <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 flex gap-3">
+          <div class="text-blue-600 mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-blue-950">建议修复：参考文献引注年份缺失 (Missing Citation Year)</h4>
+              <span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono">第 14 页 · 脚注 #3</span>
+            </div>
+            <p class="text-xs text-blue-900/80 leading-relaxed">
+              检测到正文引注 <em>“Wang et al.”</em> 对应脚注缺少发表年份字段，GB/T 7714 规范要求作者后必须跟随规范出版年（如 <em>Wang et al., 2023</em>）。
+            </p>
+            <div class="pt-2 flex items-center gap-3">
+              <button class="text-[11px] font-semibold text-blue-700 hover:text-blue-900 underline flex items-center gap-1">
+                定位至文稿对应位置 &rarr;
+              </button>
+              <button class="text-[11px] font-semibold text-blue-700 hover:text-blue-900 bg-white/80 px-2 py-0.5 rounded border border-blue-200">
+                忽略此项
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pass Note (Green verification) -->
+        <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 flex gap-3">
+          <div class="text-emerald-600 mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-emerald-950">质检验讫：公式白名单完整性校验通过 (Formula Whitelist Integrity)</h4>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono">32 / 32 全覆盖</span>
+            </div>
+            <p class="text-xs text-emerald-900/80 leading-relaxed">
+              全部 32 处数学公式已完成 OMML 语法树闭环校验，未发现公式字符退化为乱码图片或私有符号，公式右侧标号与正文引用编号 100% 对应闭环。
+            </p>
+            <div class="pt-2 flex items-center gap-2 text-[11px] text-emerald-800 font-medium">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>符合学术学位论文出版规范 GB/T 7713.1-2006</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Info Bar -->
+  <footer class="border-t border-brand-border bg-[#ece6d9]/80 py-4 px-6 text-xs text-stone-500">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="font-semibold text-stone-700">Paper Setting v1.1</span>
+        <span>·</span>
+        <span>本地沙箱离线智能排版系统</span>
+        <span>·</span>
+        <span class="text-stone-400">SHA-256 Verified Sandbox</span>
+      </div>
+      <div class="flex items-center gap-4 text-stone-600">
+        <span class="flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+          0 Network I/O
+        </span>
+        <span>WebAssembly OOXML Engine</span>
+        <span>GB/T 7713.1 学术规范全兼容</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

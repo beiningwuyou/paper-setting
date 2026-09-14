@@ -1,0 +1,12 @@
+[
+ {"id":"C01","category":"常规明确要求","text":"正文：仿宋，小四，1.5 倍行距。\n上边距 2.8cm。","expected":{"body_font":"仿宋","body_size_pt":12,"line_spacing":1.5,"line_spacing_mode":"multiple","margin_top_mm":28}},
+ {"id":"C02","category":"毫米单位","text":"正文：宋体。\n上边距 20mm。","expected":{"body_font":"宋体","margin_top_mm":20}},
+ {"id":"C03","category":"固定行距","text":"正文：宋体，固定值 20 磅。","expected":{"body_font":"宋体","line_spacing":20,"line_spacing_mode":"exact"}},
+ {"id":"C04","category":"字号解析","text":"正文：宋体，五号。","expected":{"body_font":"宋体","body_size_pt":10.5}},
+ {"id":"C05","category":"角色作用域","text":"正文：宋体，小四。\n一级标题：楷体，三号。","expected":{"body_font":"宋体","body_size_pt":12}},
+ {"id":"C06","category":"模糊字号","text":"正文：宋体，字号适当缩小。","expected":{"body_font":"宋体","body_size_pt":null}},
+ {"id":"C07","category":"冲突要求","text":"正文：宋体。\n正文：楷体。","expected":{"body_font":null}},
+ {"id":"C08","category":"无关输入","text":"这是一段与排版无关的普通文本。","expected":{"rejected":true}},
+ {"id":"C09","category":"中文单位","text":"正文：宋体。\n上边距 2.8厘米。","expected":{"body_font":"宋体","margin_top_mm":28}},
+ {"id":"C10","category":"空输入","text":"","expected":{"rejected":true}}
+]

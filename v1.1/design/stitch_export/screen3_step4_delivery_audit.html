@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paper Setting v1.1 - 导出成品与排版审计看板</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: #f4f0e6;
+      color: #18221c;
+      overflow-x: hidden;
+    }
+
+    .font-serif-cn {
+      font-family: "Songti SC", "Source Han Serif SC", "SimSun", "Georgia", serif;
+    }
+
+    /* Glow highlights */
+    .download-glow {
+      box-shadow: 0 0 0 1px rgba(28, 93, 67, 0.15), 0 12px 36px -8px rgba(28, 93, 67, 0.22);
+    }
+
+    /* Paper Mockup 3D Elevation & subtle grain */
+    .paper-sheet {
+      background-color: #ffffff;
+      box-shadow: 
+        0 1px 3px rgba(0,0,0,0.05),
+        0 16px 40px -10px rgba(24, 34, 28, 0.16),
+        0 2px 10px rgba(28, 93, 67, 0.04);
+      transform: perspective(1200px) rotateX(1deg);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .paper-sheet:hover {
+      transform: perspective(1200px) rotateX(0deg) translateY(-2px);
+      box-shadow: 
+        0 2px 6px rgba(0,0,0,0.06),
+        0 22px 50px -12px rgba(24, 34, 28, 0.22),
+        0 4px 16px rgba(28, 93, 67, 0.08);
+    }
+
+    .shimmer-badge {
+      background: linear-gradient(120deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 70%);
+      background-size: 200% 100%;
+      animation: shimmer 3s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    .dot-pattern {
+      background-image: radial-gradient(rgba(24, 34, 28, 0.065) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col dot-pattern text-[#18221c]">
+
+  <!-- Top Dark Navigation Bar -->
+  <header class="bg-[#14231c] text-white px-6 py-3 flex items-center justify-between border-b border-[#23382e] sticky top-0 z-50 shadow-md">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-lg bg-[#1c5d43] flex items-center justify-center text-white font-serif-cn font-bold text-lg shadow-inner">
+          文
+        </div>
+        <span class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+          Paper Setting <span class="text-xs font-semibold px-1.5 py-0.5 rounded bg-[#233a30] text-[#78d4a9] border border-[#2f5142]">v1.1</span>
+        </span>
+      </div>
+      <span class="text-xs px-2.5 py-0.8 rounded-full bg-[#1b3327] text-[#65c898] border border-[#254636] font-medium hidden sm:inline-block">
+        纯本地双视图体系
+      </span>
+      <span class="text-xs text-[#8ca396] hidden md:inline-block border-l border-[#263e33] pl-4">
+        深度语义解析与本地 OOXML 确定性编译
+      </span>
+    </div>
+
+    <div class="flex items-center space-x-4 text-xs">
+      <div class="flex items-center space-x-1.5 bg-[#172c22] px-3 py-1.5 rounded-full border border-[#264436]">
+        <span class="w-2 h-2 rounded-full bg-[#41ca8e] animate-pulse"></span>
+        <span class="text-[#a6c8b7] font-medium">离线沙箱就绪</span>
+        <span class="text-[#41ca8e] font-semibold">· 0 Token 离线</span>
+      </div>
+
+      <button class="hover:text-[#52d398] text-[#9bb3a6] flex items-center gap-1 transition-colors px-2 py-1">
+        <i class="fa-regular fa-bookmark"></i>
+        <span>GB/T 7713.1 规范库</span>
+      </button>
+
+      <button class="hover:text-[#52d398] text-[#9bb3a6] flex items-center gap-1 transition-colors px-2 py-1">
+        <i class="fa-solid fa-sliders"></i>
+        <span>排版偏好</span>
+      </button>
+
+      <button class="px-3 py-1.5 rounded bg-[#223b2f] hover:bg-[#2b483b] text-gray-200 text-xs font-medium border border-[#315242] transition-colors">
+        离线文档
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 md:py-10 space-y-8">
+
+    <!-- View Switcher Segmented Control (Active: 极简排版) -->
+    <div class="flex justify-center">
+      <div class="inline-flex items-center p-1 bg-[#eae4d3] border border-[#dbd3c0] rounded-full shadow-inner">
+        <button class="px-5 py-1.5 rounded-full text-xs md:text-sm font-semibold text-[#1c5d43] bg-white shadow-sm flex items-center gap-2 transition-all">
+          <i class="fa-solid fa-sparkles text-[#1c5d43]"></i>
+          <span>极简排版 (默认)</span>
+        </button>
+        <button class="px-5 py-1.5 rounded-full text-xs md:text-sm font-medium text-[#58655d] hover:text-[#18221c] flex items-center gap-1.5 transition-all">
+          <i class="fa-solid fa-wand-magic-sparkles text-purple-600"></i>
+          <span>详细与 Agent 智排</span>
+          <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full">AI</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stepper Navigation (Step 4 Active & 1-3 Completed) -->
+    <section class="max-w-3xl mx-auto px-2">
+      <div class="relative flex items-center justify-between">
+        <!-- Connecting Line Background -->
+        <div class="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-[2px] bg-[#22845c] -z-0"></div>
+
+        <!-- Step 1 (Completed) -->
+        <div class="relative flex flex-col items-center bg-[#f4f0e6] px-2 z-10">
+          <div class="w-8 h-8 rounded-full bg-[#1c5d43] text-white flex items-center justify-center text-xs shadow font-semibold">
+            <i class="fa-solid fa-check text-xs"></i>
+          </div>
+          <span class="mt-2 text-xs font-medium text-[#1c5d43]">1 上传文稿</span>
+        </div>
+
+        <!-- Step 2 (Completed) -->
+        <div class="relative flex flex-col items-center bg-[#f4f0e6] px-2 z-10">
+          <div class="w-8 h-8 rounded-full bg-[#1c5d43] text-white flex items-center justify-center text-xs shadow font-semibold">
+            <i class="fa-solid fa-check text-xs"></i>
+          </div>
+          <span class="mt-2 text-xs font-medium text-[#1c5d43]">2 目标规范</span>
+        </div>
+
+        <!-- Step 3 (Completed) -->
+        <div class="relative flex flex-col items-center bg-[#f4f0e6] px-2 z-10">
+          <div class="w-8 h-8 rounded-full bg-[#1c5d43] text-white flex items-center justify-center text-xs shadow font-semibold">
+            <i class="fa-solid fa-check text-xs"></i>
+          </div>
+          <span class="mt-2 text-xs font-medium text-[#1c5d43]">3 智能排版</span>
+        </div>
+
+        <!-- Step 4 (Active Current) -->
+        <div class="relative flex flex-col items-center bg-[#f4f0e6] px-2 z-10">
+          <div class="w-9 h-9 rounded-full bg-[#1c5d43] text-white ring-4 ring-[#a9dfc6] flex items-center justify-center text-sm font-bold shadow-md">
+            4
+          </div>
+          <span class="mt-2 text-xs font-bold text-[#1c5d43]">4 导出成品</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Celebration Header -->
+    <section class="text-center space-y-3 pt-2">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#e3f4ec] border border-[#a2d8be] shadow-sm mb-1 text-[#1c5d43]">
+        <div class="w-11 h-11 rounded-full bg-[#1c5d43] flex items-center justify-center text-white text-xl shadow">
+          <i class="fa-solid fa-check"></i>
+        </div>
+      </div>
+
+      <h1 class="font-serif-cn text-3xl md:text-4xl font-bold tracking-tight text-[#143224]">
+        论文排版已顺利完成！
+      </h1>
+
+      <p class="text-sm md:text-base text-[#465b4f] max-w-2xl mx-auto leading-relaxed">
+        全篇格式已对齐规范，公式与图表 <span class="font-semibold text-[#1c5d43]">100% 原样保留</span>，全程在本地单机离线沙箱执行，未经过任何外部大模型。
+      </p>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#edf6f1] text-[#1c5d43] text-xs font-medium border border-[#cae5d6]">
+        <i class="fa-solid fa-shield-halved text-[#1c5d43]"></i>
+        <span>离线沙箱保证 · 原始 DOCX 安全未受破坏 · OOXML 结构完整</span>
+      </div>
+    </section>
+
+    <!-- Primary Download Box with Glowing Highlight -->
+    <section class="bg-white border-2 border-[#1c5d43]/30 rounded-2xl p-6 md:p-8 download-glow relative overflow-hidden transition-all">
+      <div class="absolute -right-16 -top-16 w-48 h-48 bg-[#edf7f1] rounded-full filter blur-2xl pointer-events-none"></div>
+
+      <div class="relative flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-start space-x-4 w-full md:w-auto">
+          <div class="w-14 h-14 rounded-xl bg-[#eaf4ef] border border-[#bfe0ce] flex-shrink-0 flex items-center justify-center text-[#1c5d43] text-2xl shadow-sm">
+            <i class="fa-solid fa-file-word"></i>
+          </div>
+          <div class="space-y-1 text-left">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 class="text-base md:text-lg font-bold text-[#15271e]">
+                基于深度学习的学术排版优化_排版完成.docx
+              </h2>
+              <span class="bg-[#dcf3e7] text-[#1c5d43] text-xs font-semibold px-2 py-0.5 rounded-full border border-[#b2e2ca]">
+                编译通过
+              </span>
+            </div>
+            <p class="text-xs md:text-sm text-[#5a6f63] flex items-center gap-3">
+              <span><i class="fa-regular fa-file-lines mr-1 text-[#869b8f]"></i>2.45 MiB · 标准 DOCX 副本</span>
+              <span><i class="fa-solid fa-check-double mr-1 text-[#1c5d43]"></i>SHA-256 离线哈希已固化</span>
+            </p>
+            <div class="text-[11px] text-[#819488] pt-1">
+              目标规范：<strong>高校硕士学位论文 GB/T 7713.1 格式</strong> (包含标准页眉页脚、三线表与公式编号)
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto flex-shrink-0">
+          <button class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-[#1c5d43] hover:bg-[#134431] text-white font-bold text-sm md:text-base flex items-center justify-center gap-2.5 shadow-lg shadow-[#1c5d43]/25 transition-all hover:scale-[1.02] active:scale-[0.99] group">
+            <i class="fa-solid fa-download group-hover:translate-y-0.5 transition-transform"></i>
+            <span>下载排版后论文 (.docx)</span>
+          </button>
+          
+          <button class="w-full sm:w-auto px-4 py-3.5 rounded-xl bg-[#f0eee6] hover:bg-[#e6e2d6] text-[#2c3d33] font-semibold text-xs md:text-sm border border-[#d6cfbe] flex items-center justify-center gap-1.5 transition-colors">
+            <i class="fa-solid fa-code-compare text-xs text-[#526a5c]"></i>
+            <span>导出排版日志</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Highlights Grid -->
+    <section class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-cn text-lg md:text-xl font-bold text-[#142c20] flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-[#1c5d43] text-base"></i>
+          <span>排版核心优化亮点</span>
+        </h3>
+        <span class="text-xs text-[#63776b]">4 项规范指标均通过原子级 AST 校验</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-white border border-[#ded7c8] rounded-xl p-4 shadow-sm hover:border-[#1c5d43]/50 transition-all flex items-start space-x-3 group">
+          <div class="w-7 h-7 rounded-full bg-[#e6f4ed] text-[#1c5d43] flex items-center justify-center text-xs flex-shrink-0 mt-0.5 group-hover:bg-[#1c5d43] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs md:text-sm font-bold text-[#182a20]">统一了一至四级标题格式与间距</h4>
+            <p class="text-xs text-[#65776d] leading-relaxed">严格按章条规范设定黑体与宋体字号，精准对齐段前 12pt / 段后 6pt。</p>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white border border-[#ded7c8] rounded-xl p-4 shadow-sm hover:border-[#1c5d43]/50 transition-all flex items-start space-x-3 group">
+          <div class="w-7 h-7 rounded-full bg-[#e6f4ed] text-[#1c5d43] flex items-center justify-center text-xs flex-shrink-0 mt-0.5 group-hover:bg-[#1c5d43] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs md:text-sm font-bold text-[#182a20]">正文规范为宋体小四与首行缩进</h4>
+            <p class="text-xs text-[#65776d] leading-relaxed">1.25 倍行距、首行 2 字符统一对齐，西文与数字无缝适配 Times New Roman。</p>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white border border-[#ded7c8] rounded-xl p-4 shadow-sm hover:border-[#1c5d43]/50 transition-all flex items-start space-x-3 group">
+          <div class="w-7 h-7 rounded-full bg-[#e6f4ed] text-[#1c5d43] flex items-center justify-center text-xs flex-shrink-0 mt-0.5 group-hover:bg-[#1c5d43] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs md:text-sm font-bold text-[#182a20]">12 处图表题注与交叉引用对齐</h4>
+            <p class="text-xs text-[#65776d] leading-relaxed">静态“图 1”自动转换为动态 Word SEQ 题注域，正文引注支持双向追踪跳转。</p>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white border border-[#ded7c8] rounded-xl p-4 shadow-sm hover:border-[#1c5d43]/50 transition-all flex items-start space-x-3 group">
+          <div class="w-7 h-7 rounded-full bg-[#e6f4ed] text-[#1c5d43] flex items-center justify-center text-xs flex-shrink-0 mt-0.5 group-hover:bg-[#1c5d43] group-hover:text-white transition-colors">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="space-y-1">
+            <h4 class="text-xs md:text-sm font-bold text-[#182a20]">4 处数学公式完整无损通过自验</h4>
+            <p class="text-xs text-[#65776d] leading-relaxed">独立居中配对右对齐编号，底层 OMML 数学树语法闭环无乱码无降级。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compliance Metric Section -->
+    <section class="bg-white border border-[#dbd3c2] rounded-2xl p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-[#eee8da] pb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-2.5 h-2.5 rounded-full bg-[#1c5d43]"></div>
+          <h3 class="font-serif-cn text-base md:text-lg font-bold text-[#172b20]">
+            规范合规率自检报告 (Compliance Audit)
+          </h3>
+        </div>
+        <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-[#e6f5ee] text-[#1c5d43] border border-[#bce2cd]">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>VERDICT: 100% COMPLIANT</span>
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+        <!-- Metric 1 -->
+        <div class="p-4 rounded-xl bg-[#fbf9f4] border border-[#e8e1d3] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-[#5f7366] font-medium">字体与行距</span>
+            <span class="text-sm font-bold text-[#1c5d43]">100%</span>
+          </div>
+          <div class="w-full bg-[#e5dfce] h-2 rounded-full overflow-hidden">
+            <div class="bg-[#1c5d43] h-full rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <p class="text-[11px] text-[#798e82]">宋体 / Times / 1.25倍</p>
+        </div>
+
+        <!-- Metric 2 -->
+        <div class="p-4 rounded-xl bg-[#fbf9f4] border border-[#e8e1d3] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-[#5f7366] font-medium">标题树拓扑</span>
+            <span class="text-sm font-bold text-[#1c5d43]">100%</span>
+          </div>
+          <div class="w-full bg-[#e5dfce] h-2 rounded-full overflow-hidden">
+            <div class="bg-[#1c5d43] h-full rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <p class="text-[11px] text-[#798e82]">一至四级无断层无跳级</p>
+        </div>
+
+        <!-- Metric 3 -->
+        <div class="p-4 rounded-xl bg-[#fbf9f4] border border-[#e8e1d3] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-[#5f7366] font-medium">题注与公式</span>
+            <span class="text-sm font-bold text-[#1c5d43]">100%</span>
+          </div>
+          <div class="w-full bg-[#e5dfce] h-2 rounded-full overflow-hidden">
+            <div class="bg-[#1c5d43] h-full rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <p class="text-[11px] text-[#798e82]">按章连续编号 · SEQ 字段</p>
+        </div>
+
+        <!-- Metric 4 -->
+        <div class="p-4 rounded-xl bg-[#fbf9f4] border border-[#e8e1d3] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-[#5f7366] font-medium">引注与文献</span>
+            <span class="text-sm font-bold text-[#1c5d43]">100%</span>
+          </div>
+          <div class="w-full bg-[#e5dfce] h-2 rounded-full overflow-hidden">
+            <div class="bg-[#1c5d43] h-full rounded-full transition-all duration-1000" style="width: 100%"></div>
+          </div>
+          <p class="text-[11px] text-[#798e82]">GB/T 7714 规范闭环</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive 3D Document Preview Mockup (Before vs After) -->
+    <section class="bg-white border border-[#dbd3c2] rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
+      
+      <!-- Preview Header & Tab Switch -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#ede5d5]">
+        <div>
+          <h3 class="font-serif-cn text-xl font-bold text-[#172b20] flex items-center gap-2">
+            <i class="fa-solid fa-eye text-[#1c5d43]"></i>
+            <span>排版前后视觉效果对比看板</span>
+          </h3>
+          <p class="text-xs text-[#667a6e] mt-1">支持鼠标微倾斜拟真视图，可随时切换查看排版前原始初稿与排版后标准效果。</p>
+        </div>
+
+        <!-- Toggle Tabs -->
+        <div class="inline-flex p-1 bg-[#ede7d8] rounded-xl border border-[#ded5c2] self-start sm:self-auto">
+          <button id="tab-after" onclick="switchTab('after')" class="px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-white text-[#1c5d43] shadow-sm transition-all flex items-center gap-1.5">
+            <span>✨ 排版后 (标准规范)</span>
+          </button>
+          <button id="tab-before" onclick="switchTab('before')" class="px-4 py-2 rounded-lg text-xs md:text-sm font-medium text-[#5c6e64] hover:text-[#18221c] transition-all flex items-center gap-1.5">
+            <span>📄 排版前 (原始初稿)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- A4 Sheet Container Area -->
+      <div class="bg-[#ece6d5] p-6 md:p-10 rounded-2xl border border-[#dbd1bd] flex justify-center items-center overflow-hidden">
+        
+        <!-- A4 Paper Mockup (Standard Aspect Ratio ~ 1:1.414) -->
+        <div id="paper-view" class="paper-sheet w-full max-w-2xl bg-white rounded-md p-8 md:p-12 border border-[#e2dcce] relative">
+          
+          <!-- Decorative Word ruler on top -->
+          <div class="absolute top-2 left-6 right-6 flex items-center justify-between text-[9px] text-[#b0a998] border-b border-[#eee9dc] pb-1 select-none font-mono">
+            <span>0</span>
+            <span>2</span>
+            <span>4</span>
+            <span>6</span>
+            <span>8</span>
+            <span>10</span>
+            <span>12</span>
+            <span>14</span>
+            <span>16 (cm)</span>
+          </div>
+
+          <!-- AFTER VIEW CONTENT -->
+          <div id="content-after" class="space-y-6 pt-3">
+            <!-- Header bar on paper -->
+            <div class="text-center pb-2 border-b border-[#2d3a33] text-[11px] text-[#55695e] tracking-wider font-serif-cn">
+              清华大学硕士学位论文 · 本地离线智能排版体系
+            </div>
+
+            <!-- Chapter Heading -->
+            <div class="text-center pt-2 pb-1">
+              <h2 class="font-serif-cn text-2xl md:text-3xl font-bold tracking-widest text-[#15231c]">
+                第 1 章 &nbsp; 绪 &nbsp; 论
+              </h2>
+              <div class="text-xs text-[#526458] mt-1 font-serif-cn">1.1 课题研究背景与学术价值</div>
+            </div>
+
+            <!-- Formatted Body Text (Songti, indent, 1.25 line height) -->
+            <div class="font-serif-cn text-sm md:text-[14px] text-[#1c2620] leading-[1.75] space-y-4 text-justify">
+              <p class="indent-8">
+                随着深度学习在计算机科学及各交叉学科中的深入应用，学术文献的排版与知识结构表达正面临极高标准化要求。传统人工排版往往耗费学者与研究生大量时间，反复修改字体字号、首行空两个字、公式对齐与三线表格式等机械工作，极易引入符号乱码与交叉引用断层问题。
+              </p>
+              <p class="indent-8">
+                本研究提出一种基于单机 AST 与 OOXML 确定性重编译的轻量化学术排版架构。系统在本地 WebAssembly 沙箱中实现，无需将学术数据上传至外部神经网络，在严格保障未发表论文知识产权的前提下，实现一键式高精度排版与可审计差异检核。
+              </p>
+            </div>
+
+            <!-- Figure Box -->
+            <div class="my-4 border border-[#d6cfbe] bg-[#faf8f3] p-4 rounded-lg flex flex-col items-center space-y-2">
+              <div class="w-full h-28 bg-[#f0ede4] rounded border border-dashed border-[#c2b9a5] flex flex-col items-center justify-center text-xs text-[#63756a] space-y-1">
+                <i class="fa-solid fa-diagram-project text-lg text-[#1c5d43]"></i>
+                <span class="font-semibold">[ 论文架构图：Parser -&gt; AST Engine -&gt; Rule Validator -&gt; OOXML Writer ]</span>
+                <span class="text-[10px] text-[#8e9f95]">100% 原尺寸无损嵌入 · 高清矢量渲染</span>
+              </div>
+              <div class="text-center font-serif-cn text-xs font-semibold text-[#182a20]">
+                图 1-1 &nbsp; 本地离线排版引擎架构与 AST 映射拓扑
+              </div>
+            </div>
+
+            <!-- Formula Box -->
+            <div class="py-2 px-4 bg-[#f8f6f0] border-y border-[#e2dacc] flex items-center justify-between font-serif-cn text-xs md:text-sm">
+              <div class="italic text-center flex-1 font-serif">
+                f(x) = \sum_{k=1}^{n} w_k \cdot \sigma\left( \mathbf{W}^T x_k + b \right) + \epsilon_{\text{audit}}
+              </div>
+              <div class="text-[#415349] font-medium ml-4 select-none">(1-1)</div>
+            </div>
+
+            <!-- Footnote rule -->
+            <div class="pt-4 border-t border-[#18221c] w-32 text-[10px] text-[#55695e] font-serif-cn">
+              ① GB/T 7713.1 学术规范标准脚注定义；本文稿通过本地 AST 沙箱重验。
+            </div>
+          </div>
+
+          <!-- BEFORE VIEW CONTENT (Hidden by default) -->
+          <div id="content-before" class="space-y-6 pt-3 hidden">
+            <!-- Messy Header on paper -->
+            <div class="text-left pb-2 border-b border-dashed border-red-300 text-[11px] text-red-500 tracking-normal font-sans">
+              [原稿无正规页眉] 毕业设计终稿_真的最终版.docx
+            </div>
+
+            <!-- Messy Chapter Heading -->
+            <div class="text-left pt-2 pb-1">
+              <h2 class="font-sans text-xl font-normal text-red-600">
+                1. 绪论 (原稿：四号宋体居左，段前未留白，编号格式杂乱)
+              </h2>
+            </div>
+
+            <!-- Unformatted Body Text (Uneven indentation, messy fonts) -->
+            <div class="font-sans text-xs text-gray-700 leading-normal space-y-3">
+              <p class="text-red-700 bg-red-50 p-2 rounded border border-red-200">
+                <i class="fa-solid fa-triangle-exclamation mr-1 text-red-500"></i> 原稿缺陷检测：首行使用空格或 Tab 混用，西文字体混用 Calibri 与 Arial，行距为默认单倍行距，正文字号与行距未按研究生院规范对齐。
+              </p>
+              <p>
+                随着深度学习在计算机科学及各交叉学科中的深入应用，学术文献的排版与知识结构表达正面临极高标准化要求。传统人工排版往往耗费学者与研究生大量时间，反复修改字体字号、首行空两个字、公式对齐与三线表格式等机械工作...
+              </p>
+            </div>
+
+            <!-- Messy Figure Box -->
+            <div class="my-4 border border-red-300 bg-red-50/40 p-4 rounded flex flex-col items-start space-y-2">
+              <div class="w-full h-20 bg-gray-200 rounded flex items-center justify-center text-xs text-red-600">
+                [静态图片直接粘贴 · 缺失动态 SEQ 编号]
+              </div>
+              <div class="text-left text-xs text-red-600">
+                图1：排版架构图 （原稿：普通手动文本输入，未绑定 Word 题注，无法全局交叉引用）
+              </div>
+            </div>
+
+            <!-- Messy Formula -->
+            <div class="py-2 px-2 bg-gray-100 border border-red-200 flex items-center justify-between text-xs text-red-700">
+              <div>f(x) = sum(w_k * x_k) + b  [普通文本字符拼凑，公式编号空格手敲居右]</div>
+              <div>(1)</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="flex items-center justify-between text-xs text-[#617467] pt-1">
+        <span class="flex items-center gap-1.5">
+          <i class="fa-solid fa-magnifying-glass-plus text-[#1c5d43]"></i>
+          <span>视图支持 100% 原生矢量字体渲染，无锯齿无失真</span>
+        </span>
+        <span class="text-[#7d9285]">
+          A4 版心：页边距上 3.0cm · 下 2.5cm · 左 3.0cm · 右 2.5cm
+        </span>
+      </div>
+    </section>
+
+    <!-- Bottom Action Area -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 pb-12 border-t border-[#ded6c5]">
+      <div class="flex items-center space-x-2 text-xs text-[#526659]">
+        <i class="fa-solid fa-circle-check text-[#1c5d43]"></i>
+        <span>所有处理在本地完成，内存缓存已就绪，随时可安全关闭或排版下一篇</span>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <button class="px-5 py-2.5 rounded-xl bg-white hover:bg-[#faf7f0] text-[#1c5d43] font-semibold text-sm border-2 border-[#1c5d43] shadow-sm transition-all flex items-center gap-2 hover:shadow">
+          <i class="fa-solid fa-rotate-left"></i>
+          <span>排版另一篇论文</span>
+        </button>
+
+        <button class="px-6 py-2.5 rounded-xl bg-[#1c5d43] hover:bg-[#134431] text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+          <i class="fa-solid fa-download"></i>
+          <span>下载排版后论文 (.docx)</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="bg-[#101b16] text-[#74897d] text-xs py-4 px-6 border-t border-[#1f3127] flex flex-col md:flex-row items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <span class="font-bold text-[#b4cec1]">Paper Setting v1.1</span>
+      <span>· 本地离线智能排版系统</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span>SHA-256 Verified Sandbox</span>
+      <span class="text-[#395043]">|</span>
+      <span class="text-[#41ca8e] flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#41ca8e]"></span> 0 Network I/O
+      </span>
+      <span class="text-[#395043]">|</span>
+      <span>WebAssembly OOXML Engine</span>
+      <span class="text-[#395043]">|</span>
+      <span>GB/T 7713.1 学术规范全兼容</span>
+    </div>
+  </footer>
+
+  <script>
+    function switchTab(mode) {
+      const tabAfter = document.getElementById('tab-after');
+      const tabBefore = document.getElementById('tab-before');
+      const contentAfter = document.getElementById('content-after');
+      const contentBefore = document.getElementById('content-before');
+      const paperView = document.getElementById('paper-view');
+
+      if (mode === 'after') {
+        tabAfter.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-white text-[#1c5d43] shadow-sm transition-all flex items-center gap-1.5";
+        tabBefore.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-medium text-[#5c6e64] hover:text-[#18221c] transition-all flex items-center gap-1.5";
+        contentAfter.classList.remove('hidden');
+        contentBefore.classList.add('hidden');
+        paperView.classList.remove('border-red-200');
+        paperView.classList.add('border-[#e2dcce]');
+      } else {
+        tabBefore.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-bold bg-white text-red-600 shadow-sm transition-all flex items-center gap-1.5";
+        tabAfter.className = "px-4 py-2 rounded-lg text-xs md:text-sm font-medium text-[#5c6e64] hover:text-[#18221c] transition-all flex items-center gap-1.5";
+        contentBefore.classList.remove('hidden');
+        contentAfter.classList.add('hidden');
+        paperView.classList.remove('border-[#e2dcce]');
+        paperView.classList.add('border-red-200');
+      }
+    }
+  </script>
+</body>
+</html>

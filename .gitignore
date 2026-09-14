@@ -1,0 +1,56 @@
+# ==========================================
+# 隐私数据与本地沙箱 (严禁同步与上传)
+# ==========================================
+data/
+v1.1/storage/*
+!v1.1/storage/.gitkeep
+writing-style/
+artifacts/
+.env
+*.env.local
+
+# 论文文档防呆防护 (防止真实文档与成果误入 Git)
+*.docx
+*.pdf
+# 允许特定内置代码生成用的静态样本（如有）
+!v1.1/server/sample_*.docx
+
+# 数据库与本地日志
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
+
+# ==========================================
+# 本地运行时与编译构建产物
+# ==========================================
+runtime/
+*.app/
+dist/
+build/
+apps/web/node_modules/
+apps/web/dist/
+apps/web/.vite/
+node_modules/
+.venv/
+env/
+venv/
+*.egg-info/
+
+# ==========================================
+# 缓存与 IDE 运行时
+# ==========================================
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.codex/
+.DS_Store
+**/.DS_Store
+Thumbs.db
+

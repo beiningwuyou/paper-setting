@@ -1,0 +1,19 @@
+[project]
+name = "paper-setting-v1-1"
+version = "1.1.0"
+description = "Paper Setting v1.1 - Dual-View Academic Formatting Workbench"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.34",
+  "python-docx>=1.1.2",
+  "pydantic>=2.10",
+  "python-multipart>=0.0.20",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
